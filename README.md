@@ -11,43 +11,43 @@
 **项目结构**
 ```
 VisionPlatform
-├─  common  公共模块
-│
-├─  api  API服务（后端开放给前端页面的api，也可以开发给移动端使用过的api，都写在这里）
-│    ├─annotation   可自定义注解
-│    ├─config       配置
-│    ├─controller   控制层
-│    ├─dao          数据访问层
-│    ├─entity       实体对象
-│    ├─exception    异常定义
-│    ├─form         表单
-│    ├─interception 拦截器
-│    ├─resolver     解析器
-│    ├─service      服务层
-│    │ 
-│    └─resources    资源文件
-│        ├─mapper   MyBatis文件
-│        └─application.yml...   一些配置文件
-│ 
-├─  web  前端页面展示模块
-│    ├─job     服务于前端的后端页面
-│    ├─config       配置
-│    ├─controller   控制层
-│    ├─dao          数据访问层
-│    ├─entity       实体对象
-│    ├─service      业务逻辑层
-│    ├─utils        工具包
-│    │
-│    └─resources 
-│        ├─mapper   MyBatis文件
-│        ├─statics  静态资源
-│        ├─template 系统页面
-│        │    ├─modules      模块页面
-│        │    ├─index.html   AdminLTE主题风格（默认主题）
-│        │    └─index1.html  Layui主题风格
-│        └─application.yml   全局配置文件
-│
-└─  Doc  文档存放目录
+    ├─  common  公共模块
+    │
+    ├─  api  API服务（后端开放给前端页面的api，也可以开发给移动端使用过的api，都写在这里）
+    │    ├─annotation   可自定义注解
+    │    ├─config       配置
+    │    ├─controller   控制层
+    │    ├─dao          数据访问层
+    │    ├─entity       实体对象
+    │    ├─exception    异常定义
+    │    ├─form         表单
+    │    ├─interception 拦截器
+    │    ├─resolver     解析器
+    │    ├─service      服务层
+    │    │ 
+    │    └─resources    资源文件
+    │        ├─mapper   MyBatis文件
+    │        └─application.yml...   一些配置文件
+    │ 
+    ├─  web  前端页面展示模块
+    │    ├─job     服务于前端的后端页面
+    │    ├─config       配置
+    │    ├─controller   控制层
+    │    ├─dao          数据访问层
+    │    ├─entity       实体对象
+    │    ├─service      业务逻辑层
+    │    ├─utils        工具包
+    │    │
+    │    └─resources 
+    │        ├─mapper   MyBatis文件
+    │        ├─statics  静态资源
+    │        ├─template 系统页面
+    │        │    ├─modules      模块页面
+    │        │    ├─index.html   AdminLTE主题风格（默认主题）
+    │        │    └─index1.html  Layui主题风格
+    │        └─application.yml   全局配置文件
+    │
+    └─  Doc  文档存放目录
 
 ```
 
