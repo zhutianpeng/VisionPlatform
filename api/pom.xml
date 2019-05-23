@@ -9,6 +9,9 @@
 	<packaging>jar</packaging>
 	<description>api</description>
 
+	<properties>
+		<jcraft.version>0.1.54</jcraft.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -16,6 +19,7 @@
 			<artifactId>common</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -30,6 +34,11 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>5.4.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>${jcraft.version}</version>
 		</dependency>
 	</dependencies>
 

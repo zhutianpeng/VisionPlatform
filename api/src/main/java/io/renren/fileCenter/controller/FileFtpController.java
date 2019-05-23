@@ -1,7 +1,7 @@
-package io.renren.job.fileCenter.controller;
+package io.renren.fileCenter.controller;
 
-import io.renren.job.fileCenter.entity.User;
-import io.renren.job.fileCenter.service.FileService;
+import io.renren.fileCenter.entity.User;
+import io.renren.fileCenter.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;
@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;

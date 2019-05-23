@@ -1,4 +1,4 @@
-package io.renren.job.fileCenter.utils;
+package io.renren.fileCenter.utils;
 
 import com.jcraft.jsch.*;
 import org.apache.commons.io.IOUtils;

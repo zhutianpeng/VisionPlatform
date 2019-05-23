@@ -1,13 +1,16 @@
-package io.renren.job.fileCenter.service.impl;
+package io.renren.fileCenter.service.impl;
 
 import com.jcraft.jsch.SftpException;
-import io.renren.job.fileCenter.entity.User;
-import io.renren.job.fileCenter.service.FileService;
-import io.renren.job.fileCenter.utils.SftpUtil;
+import io.renren.fileCenter.entity.User;
+import io.renren.fileCenter.service.FileService;
+import io.renren.fileCenter.utils.SftpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 @Service
 public class FileServiceImpl implements FileService {
