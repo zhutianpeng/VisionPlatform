@@ -1,4 +1,4 @@
-package io.renren.job.fileCenter.entity;
+package io.renren.fileCenter.entity;
 
 import lombok.Data;
 import org.springframework.stereotype.Repository;

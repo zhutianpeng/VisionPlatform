@@ -1,7 +1,7 @@
-package io.renren.job.fileCenter.controller;
+package io.renren.fileCenter.controller;
 
-import io.renren.job.fileCenter.entity.User;
-import io.renren.job.fileCenter.service.FileService;
+import io.renren.fileCenter.service.FileService;
+import io.renren.fileCenter.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;

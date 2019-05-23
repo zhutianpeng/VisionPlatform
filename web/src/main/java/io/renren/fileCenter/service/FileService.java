@@ -1,4 +1,4 @@
-package io.renren.job.fileCenter.service;
+package io.renren.fileCenter.service;
 
 import java.io.File;
 
