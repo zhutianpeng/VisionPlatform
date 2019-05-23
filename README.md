@@ -84,7 +84,7 @@ VisionPlatform
 
 ***【api】***
 - Eclipse、IDEA运行ApiApplication.java，则可启动项目【api】
-- api的文档访问路径：http://localhost:8081/renren-api/swagger-ui.html
+- api的文档访问路径：http://localhost:8081/VisionPlatform_api/swagger-ui.html
 
 ***【common】***  
 - common模块提供基础工具支持，不可直接运行。
