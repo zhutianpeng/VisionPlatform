@@ -18,5 +18,5 @@ public interface FileService {
      * @param local_dir 本地文件路径
      * @return
      */
-    public boolean downloadToFtp(String file_dir, String fileName, String local_dir);
+    public boolean downloadToFtp(String file_dir,String fileName,String local_dir);
 }
