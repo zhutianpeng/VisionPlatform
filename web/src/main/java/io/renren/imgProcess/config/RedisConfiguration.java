@@ -2,6 +2,7 @@ package io.renren.imgProcess.config;
 
 import io.renren.imgProcess.service.redisService.FileMessageListener;
 import io.renren.imgProcess.service.redisService.RedisMessageListener;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,6 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-
 
 
 @Configuration
@@ -56,25 +56,28 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     }
 
     @Bean
-    RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
+    RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+            @Qualifier("redisListenerAdapter") MessageListenerAdapter redisListenerAdapter,
+            @Qualifier("fileListenerAdapter") MessageListenerAdapter fileListenerAdapter) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        //订阅通道
-//        container.addMessageListener(listenerAdapter, new PatternTopic("yanchuangChannel"));
-        container.addMessageListener(listenerAdapter,new PatternTopic("resultChannel"));
-        //这个container 可以添加多个 messageListener
+        //订阅通道,container 可以添加多个 messageListener
+        container.addMessageListener(redisListenerAdapter, new PatternTopic("yanchuangChannel"));
+        container.addMessageListener(fileListenerAdapter,new PatternTopic("resultChannel"));
         return container;
     }
 
-//    @Bean
-//    MessageListenerAdapter listenerAdapter(RedisMessageListener redisMessageListener) {
-//        //这个地方 是给messageListenerAdapter 传入一个消息接受的处理器，利用反射的方法调用“receiveMessage”
-//        //也有好几个重载方法，这边默认调用处理器的方法 叫handleMessage 可以自己到源码里面看
-//        return new MessageListenerAdapter(redisMessageListener, "onMessage");
-//    }
+    @Bean()
+    @Qualifier("redisListenerAdapter")
+    MessageListenerAdapter listenerAdapter(RedisMessageListener redisMessageListener){
+        //这个地方 是给messageListenerAdapter 传入一个消息接受的处理器，利用反射的方法调用“receiveMessage”
+        //也有好几个重载方法，这边默认调用处理器的方法 叫handleMessage 可以自己到源码里面看
+        return new MessageListenerAdapter(redisMessageListener, "onMessage");
+    }
 
-    @Bean
-    MessageListenerAdapter listenerAdapter(FileMessageListener fileMessageListener) {
+    @Bean()
+    @Qualifier("fileListenerAdapter")
+    MessageListenerAdapter listenerAdapter(FileMessageListener fileMessageListener){
         return new MessageListenerAdapter(fileMessageListener, "onMessage");
     }
 }
