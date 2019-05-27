@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface MoveSetService extends IService<MoveSetEntity> {
 
-    List<MoveSetEntity> queryByTrainingId(Long trainingId);
+    MoveSetEntity getMoveSet(Long trainingId);
 
 }

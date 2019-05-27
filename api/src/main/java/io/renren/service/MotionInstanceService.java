@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface MotionInstanceService extends IService<MotionInstanceEntity> {
 
-    List<MotionInstanceEntity> queryByMoveInstanceId(Long moveInstanceId);
+    List<MotionInstanceEntity> getMotion(Long moveInstanceId);
 
 }

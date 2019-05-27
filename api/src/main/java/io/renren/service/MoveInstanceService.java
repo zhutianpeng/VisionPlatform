@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface MoveInstanceService extends IService<MoveInstanceEntity> {
 
-    List<MoveInstanceEntity> queryByMoveSetId(Long moveSetId);
+    List<MoveInstanceEntity> getMove(Long moveSetId);
 
 }

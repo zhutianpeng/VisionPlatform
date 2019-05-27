@@ -18,7 +18,7 @@ import java.util.List;
 public class MotionInstanceServiceImpl extends ServiceImpl<MotionInstanceDao, MotionInstanceEntity> implements MotionInstanceService {
 
     @Override
-    public List<MotionInstanceEntity> queryByMoveInstanceId(Long moveInstanceId){
+    public List<MotionInstanceEntity> getMotion(Long moveInstanceId){
         return baseMapper.selectList(new QueryWrapper<MotionInstanceEntity>().eq("movetypeinstance_id", moveInstanceId));
     }
 

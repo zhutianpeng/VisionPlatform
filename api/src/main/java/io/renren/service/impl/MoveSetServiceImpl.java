@@ -19,8 +19,8 @@ import java.util.List;
 public class MoveSetServiceImpl extends ServiceImpl<MoveSetDao, MoveSetEntity> implements MoveSetService {
 
     @Override
-    public List<MoveSetEntity> queryByTrainingId(Long trainingId){
-        return baseMapper.selectList(new QueryWrapper<MoveSetEntity>().eq("training_id", trainingId));
+    public MoveSetEntity getMoveSet(Long trainingId){
+        return baseMapper.selectOne(new QueryWrapper<MoveSetEntity>().eq("training_id", trainingId));
     }
 
 }
