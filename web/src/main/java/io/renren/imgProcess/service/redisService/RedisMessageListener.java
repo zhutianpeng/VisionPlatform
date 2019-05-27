@@ -78,6 +78,6 @@ public class RedisMessageListener implements MessageListener {
         ActiveMQQueue destination = new ActiveMQQueue("/user/"+ userToken +"/video");
 
         producerService.sendMessage(destination,output.toString());
-
+//
     }
 }
