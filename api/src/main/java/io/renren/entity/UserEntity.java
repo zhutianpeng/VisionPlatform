@@ -1,11 +1,3 @@
-/**
- * Copyright (c) 2016-2019 人人开源 All rights reserved.
- *
- * https://www.renren.io
- *
- * 版权所有，侵权必究！
- */
-
 package io.renren.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -17,16 +9,15 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-
-
 /**
- * 用户
- *
- * @author Mark sunlightcs@gmail.com
+ * @Author: Song
+ * @Date: 2019/5/27 10:00
  */
+
 @Data
-@TableName("tb_user")
+@TableName("sys_user")
 public class UserEntity implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -39,18 +30,46 @@ public class UserEntity implements Serializable {
 	 */
 	private String username;
 	/**
-	 * 手机号
-	 */
-	private String mobile;
-	/**
 	 * 密码
 	 */
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	/**
+	 * 邮箱
+	 */
+	private String email;
+	/**
+	 * 手机号
+	 */
+	private String mobile;
+	/**
+	 * 账号状态
+	 */
+	private Integer status;
+	/**
+	 * 创建者
+	 */
+	private Long createUserId;
+	/**
 	 * 创建时间
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createTime;
+	/**
+	 * 性别
+	 */
+	private Integer sex;
+	/**
+	 * 年龄
+	 */
+	private Integer age;
+	/**
+	 * 体重
+	 */
+	private Integer weight;
+	/**
+	 * 肖像
+	 */
+	private String portrait;
 
 }
