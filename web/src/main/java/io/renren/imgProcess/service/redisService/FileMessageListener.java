@@ -2,11 +2,14 @@ package io.renren.imgProcess.service.redisService;
 
 import com.alibaba.fastjson.JSONObject;
 
+import io.renren.fileCenter.controller.WebSocketController;
 import io.renren.fileCenter.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 public class FileMessageListener implements MessageListener {
@@ -29,6 +32,15 @@ public class FileMessageListener implements MessageListener {
             System.out.println("文件下载成功！");
         }
 //        TODO: ws+下载
+
+        //TODO userToken
+        try {
+            WebSocketController.sendInfo("File Available", "fishhao123");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("WebSocket发送失败！");
+        }
+
 
 
 //        1. 入库，ws， 前端主动下载（可以循环播放）；下载

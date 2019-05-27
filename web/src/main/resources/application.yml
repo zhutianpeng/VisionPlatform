@@ -9,6 +9,10 @@ server:
     context-path: /VisionPlatform_web
 
 spring:
+#  mvc:
+#    view:
+#      suffix: .jsp
+#      prefix: /WEB-INF/jsp/
   profiles:
     active: dev
   jackson:
@@ -42,11 +46,15 @@ spring:
   jms:
     pub-sub-domain: true
 
+  thymeleaf:
+    cache: false
+#    enabled: false #关闭thymeleaf
 
 
-  freemarker:
-    suffix: .html
-    request-context-attribute: request
+
+#  freemarker:
+#    suffix: .html
+#    request-context-attribute: request
 
 renren:
   redis:

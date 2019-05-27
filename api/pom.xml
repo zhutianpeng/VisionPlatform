@@ -9,10 +9,6 @@
 	<packaging>jar</packaging>
 	<description>api</description>
 
-	<properties>
-		<jcraft.version>0.1.54</jcraft.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>io.renren</groupId>
@@ -34,11 +30,6 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>5.4.2.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>${jcraft.version}</version>
 		</dependency>
 	</dependencies>
 
