@@ -1,11 +1,3 @@
-/**
- * Copyright (c) 2016-2019 人人开源 All rights reserved.
- *
- * https://www.renren.io
- *
- * 版权所有，侵权必究！
- */
-
 package io.renren.service.impl;
 
 
@@ -26,24 +18,29 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @Author: Song
+ * @Date: 2019/5/27 10:00
+ */
+
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements UserService {
 	@Autowired
 	private TokenService tokenService;
 
 	@Override
-	public UserEntity queryByMobile(String mobile) {
-		return baseMapper.selectOne(new QueryWrapper<UserEntity>().eq("mobile", mobile));
+	public UserEntity queryByUsername(String username) {
+		return baseMapper.selectOne(new QueryWrapper<UserEntity>().eq("username", username));
 	}
 
 	@Override
 	public Map<String, Object> login(LoginForm form) {
-		UserEntity user = queryByMobile(form.getMobile());
-		Assert.isNull(user, "手机号或密码错误");
+		UserEntity user = queryByUsername(form.getUsername());
+		Assert.isNull(user, "用户名或密码错误");
 
 		//密码错误
 		if(!user.getPassword().equals(DigestUtils.sha256Hex(form.getPassword()))){
-			throw new RRException("手机号或密码错误");
+			throw new RRException("用户名或密码错误");
 		}
 
 		//获取登录token

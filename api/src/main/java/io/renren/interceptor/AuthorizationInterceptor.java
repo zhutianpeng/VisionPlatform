@@ -8,7 +8,6 @@
 
 package io.renren.interceptor;
 
-
 import io.renren.annotation.Login;
 import io.renren.common.exception.RRException;
 import io.renren.entity.TokenEntity;
