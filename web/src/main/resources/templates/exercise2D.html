@@ -103,7 +103,10 @@
 
         <div class="data-main">
             <div class="main-left">
-                <data-box :title="'动作选择区'" :dheight="800">
+                <data-box :title="'训练计划选择区'" :dheight="800">
+                    <el-select v-model="trainingName" placeholder="选择用户训练计划">
+                        <el-option v-for="item in trainingList" :label="item.name" :value="item.name"></el-option>
+                    </el-select>
                 </data-box>
             </div>
             <div class="main-center">
@@ -210,7 +213,37 @@
                 task:1
             },
             myTimer:'', //定时器
-            poseData:{}
+            poseData:{},
+            trainingName:'',
+            trainingList:[{
+                moveList:[{
+                    "moveinstanceId": 194,
+                    "movetypeName": "单腿下蹲-半蹲-右",
+                    "movesetId": 81,
+                    "movetypeId": 24,
+                    "groupsPerRepeat": 1,
+                    "timesPerGroup": 3,
+                    "restBetweenGroup": 30,
+                    "rhythm": "5,1,1",
+                    "sequence": 1,
+                    "leftorright": null,
+                    motionList: [{},{}]
+                },{
+                    "moveinstanceId": 386,
+                    "movetypeName": "坐位伸膝-右",
+                    "movesetId": 118,
+                    "movetypeId": 25,
+                    "groupsPerRepeat": 2,
+                    "timesPerGroup": 3,
+                    "restBetweenGroup": 30,
+                    "rhythm": "1,3,1",
+                    "sequence": 1,
+                    "leftorright": null,
+                    motionInstanceList: [{},{}]
+                }]
+            },{
+
+            }]
         },
         mounted: function(){
             // this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2Dv5.json", {onProgress: UnityProgress});
@@ -221,6 +254,22 @@
 
         },
         methods:{
+            getTrainingPlan:function(){ //拉取该用户的所有训练计划
+                $.ajax({
+                    url: '',
+                    dataType: 'json',
+                    data: '',
+                    type: 'POST',
+                    success: function (data) {
+                        for(let item of data){
+                            
+                        }
+                    },
+                    error: function () {
+                        console.log("用户训练计划拉取失败！")
+                    }
+                });
+            },
             initCamera:function(){
                 let _this = this;
                 let constraints = { video: true };
