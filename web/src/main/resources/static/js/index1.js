@@ -105,7 +105,7 @@ var vm = new Vue({
         console.log("执行")
         isquery=false;
         layui.config({
-            base: 'statics/js/',
+            base: 'static/js/',
         }).use(['navtab','layer'], function(){
             window.jQuery = window.$ = layui.jquery;
             window.layer = layui.layer;

@@ -1,37 +1,31 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Tzh
-  Date: 2019/4/24
-  Time: 9:06
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>姿态分析展示平台</title>
-    <link rel="shortcut icon" href="${pageContext.request.contextPath}/webGL/TemplateData/favicon.ico">
+    <link rel="shortcut icon" th:href="@{/webGL/TemplateData/favicon.ico}">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script><!-- 引入vue框架 -->
-    <%--<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>&lt;%&ndash;录制实时视频用&ndash;%&gt;--%>
+    <!--<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>-->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
-    <script src="${pageContext.request.contextPath}/js/common/jquery-3.3.1.min.js"></script>
-    <script src="${pageContext.request.contextPath}/webGL/TemplateData/UnityProgress.js"></script>
-    <script src="${pageContext.request.contextPath}/webGL/Build/UnityLoader.js"></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/webGL/TemplateData/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><%--引入v-cahrts组件--%>
+    <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/webGL/TemplateData/UnityProgress.js}"></script>
+    <script th:src="@{/webGL/Build/UnityLoader.js}"></script>
+    <link rel="stylesheet" th:href="@{/webGL/TemplateData/style.css}">
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
     <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/global.scss">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/common/stomp.js"></script>
-    <script src="${pageContext.request.contextPath}/js/components/DataBox.js"></script><!-- 引入DataBox组件 -->
-    <script src="${pageContext.request.contextPath}/js/components/Common.js"></script><!-- 引入组件 -->
-    <script src="${pageContext.request.contextPath}/js/components/Exercise.js"></script><!-- 用于健身指导功能的全部组件 -->
-    <script src="${pageContext.request.contextPath}/js/components/Dance.js"></script><!-- 用于动画舞蹈的全部组件 -->
-
+    <link rel="stylesheet" th:href="@{/css/global.scss}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <script type="text/javascript" th:src="@{/js/common/stomp.js}"></script>
+    <script th:src="@{/js/components/DataBox.js}"></script><!-- 引入DataBox组件 -->
+    <script th:src="@{/js/components/Common.js}"></script><!-- 引入组件 -->
+    <script th:src="@{/js/components/Exercise.js}"></script><!-- 用于健身指导功能的全部组件 -->
+    <script th:src="@{/js/components/Dance.js}"></script><!-- 用于动画舞蹈的全部组件 -->
 </head>
-<style>
+<style th:inline="css">
     .header {
         width: 100%;
         height: 160px;
@@ -40,7 +34,7 @@
     .bg-header {
         width: 100%;
         height: 100%;
-        background: url(${pageContext.request.contextPath}/img/title.png) no-repeat;
+        background: url("[[@{/img/title.png}]]") no-repeat;
         background-size: 100% 100%;
     }
     .t-title {
@@ -52,7 +46,7 @@
         color: #fff;
     }
     .data-page{
-        background: url(${pageContext.request.contextPath}/img/background.png) no-repeat;
+        background: url("[[@{/img/background.png}]]") no-repeat;
         top: 0;
         right: 0;
         left: 0;
@@ -85,10 +79,7 @@
         float: left;
         width: 24%;
     }
-
-
 </style>
-
 <body>
 <div class="data-page" id="app">
     <el-menu style="border-bottom: none" :default-active="'1'" class="el-menu-demo" mode="horizontal" background-color="black" text-color="#fff" active-text-color="#ffd04b">
@@ -105,13 +96,10 @@
             <div class="t-title">自由锻炼</div>
         </div>
     </div>
-    <%--<topnav></topnav>--%>
     <div class="data-content">
-        <%--<div class="data-time">--%>
-        <%--</div>--%>
         <div class="data-main">
             <div class="main-left">
-                <component :is="pageSet.left" :pose="poseData"></component><%--加载左侧组件--%>
+                <component :is="pageSet.left" :pose="poseData"></component><!--加载左侧组件-->
             </div>
             <div class="main-center">
                 <data-box :title="'实时Unity3D动画'" :dheight="500" :icon="'account'" :boxb="false">
@@ -120,7 +108,6 @@
                     </div>
                 </data-box>
                 <data-box :title="'分区介绍'" :dheight="290" :icon="'account'">
-                    <%--<component :is="pageSet.bottom"></component>&lt;%&ndash;加载底部组件&ndash;%&gt;--%>
                     <img id="targetImg" style="height: 100%; width: 50%;"/>
                 </data-box>
             </div>
@@ -149,7 +136,6 @@
                             <el-form-item>
                                 <el-button :type="button.buttonType" @click="change"><span v-if="button.enable">禁用脚本</span><span v-if="!button.enable">激活脚本</span></el-button>
                                 <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">中止传输</span><span v-if="!button2.enable">开始传输</span></el-button>
-                                <%--<el-button type="success" @click="sendWS">发送WS测试</el-button>--%>
                             </el-form-item>
 
 
@@ -160,8 +146,6 @@
                         <canvas id="targetCanvas" width="400px" height="300px" style="visibility:hidden;"></canvas>
                     </data-box>
                 </data-box>
-
-                <%--<dright :username="username"></dright>--%>
             </div>
         </div>
     </div>
