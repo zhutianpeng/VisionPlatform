@@ -82,9 +82,8 @@
 
 
 </style>
-
 <body>
-<div class="data-page" id="exercise3D">
+<div class="data-page" id="exercise2D">
     <el-menu style="border-bottom: none" :default-active="'2'" class="el-menu-demo" mode="horizontal" background-color="black" text-color="#fff" active-text-color="#ffd04b">
         <el-menu-item index="1"><a th:href="@{/free}">自由锻炼</a></el-menu-item>
         <el-submenu index="2">
@@ -93,30 +92,23 @@
             <el-menu-item index="exercise3D"><a href="@{/offLine3D}">离线3D</a></el-menu-item>
         </el-submenu>
     </el-menu>
+
     <div class="header">
         <div class="bg-header">
             <div class="t-title">Pose Estimation</div>
-            <div class="t-title">离线3D康复健身</div>
+            <div class="t-title">实时2D康复健身</div>
         </div>
     </div>
     <div class="data-content">
+
         <div class="data-main">
             <div class="main-left">
-                <data-box :title="''" :dheight="800">
-                    <data-box :title="'操作面板'" :dheight="400" :icon="'account'" :boxb="false">
-                        <div style="padding: 10%">
-                            <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data" id="submitFile" onsubmit="return submitFile()">
-                                <p><input type="file" name="fileName"/></p>
-                                <p><input type="submit" value="上传文件"/></p>
-                            </form>
-                        </div>
-                    </data-box>
-                    <data-box :title="'数据展示区'" :dheight="400" :icon="'account'" :boxb="false">
-                        <ve-line></ve-line>
-                    </data-box>
+                <data-box :title="'动作选择区'" :dheight="800">
                 </data-box>
             </div>
             <div class="main-center">
+                <data-box :title="'动作参数展示区'" :dheight="300">
+                </data-box>
                 <data-box :title="'实时Unity3D动画'" :dheight="500" :icon="'account'" :boxb="false">
                     <div>
                         <div id="gameContainer" style="width: 100%; height: 100%"></div>
@@ -125,7 +117,7 @@
             </div>
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
-                    <data-box :title="'动作选择面板'" :dheight="400" :boxb="false">
+                    <data-box :title="'动作指导视频'" :dheight="400" :boxb="false">
                     </data-box>
                     <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
                         <video style="width: 100%; height: 100%" autoplay></video>
@@ -138,12 +130,9 @@
     </div>
 </div>
 
-<script type="text/javascript" th:inline="javascript">
-    function submitFile() { //提交表单
-        return false;
-    }
+<script>
 
-    var url, destination, login, passcode, userToken;
+    var destination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
     destination = "/queue/video";
     login = "admin";
@@ -211,12 +200,12 @@
     // }, stompOnError);
 
 
-    var exercise3D = new Vue({
-        el:'#exercise3D',
+    var exercise2D = new Vue({
+        el:'#exercise2D',
         data:{
             gameInstance:'',
             sendMsg:{
-                userToken:'fishhao123',
+                userToken:'123',
                 image:'',
                 task:1
             },
@@ -224,12 +213,12 @@
             poseData:{}
         },
         mounted: function(){
-            // let unityUrl = "[[@{/webGL/Build/Receiver2D.json}]]";
-            // debugger;
-            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            // this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2Dv5.json", {onProgress: UnityProgress});
 
             this.initCamera(); //初始化摄像头
-            this.initWebSocket(); //初始化WebSocket
+            // this.initWebSocket(); //初始化WebSocket
+
+
         },
         methods:{
             initCamera:function(){
@@ -241,6 +230,22 @@
                         video.srcObject = mediaStream;
                     })
                     .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
+            },
+            transImage: function (video) {
+//                console.log("进入transImage方法");
+                let _this = this;
+                let canvas = document.getElementById('targetCanvas');
+//                let scale = 1; //缩放比例
+//                canvas.width = video.videoWidth * scale;
+//                canvas.height = video.videoHeight * scale;
+                canvas.getContext('2d').drawImage(video, 0, 0, 400,300);
+                let image = canvas.toDataURL('image/jpeg');
+                if (image != null) {
+                    client.send(destination, {'user-token': userToken, 'task': 0x01}, image); //发送消息
+                    // _this.sendMsg.image = image; //填充base64编码后的视频帧
+                    // this.socket.send(JSON.stringify(_this.sendMsg)); //通过WebSocket发送到后台
+                    // console.log(image);
+                }
             },
             change:function(){ //控制WebGL激活/禁用脚本
                 this.gameInstance.SendMessage("Philip", "ChangeState");
@@ -256,7 +261,8 @@
             initWebSocket: function () {
                 if(window.WebSocket){
                     console.log("初始化WebSocket！");
-                    this.socket = new WebSocket('ws://localhost:8080/VisionPlatform_web/WebSocket/' + this.sendMsg.userToken); //123为用户ID
+                    // this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/unityWebSocket');
+                    this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/webSocket/' + this.sendMsg.userToken); //123为用户ID
                     this.socket.onopen = this.onOpen;
                     this.socket.onmessage = this.onMessage;
                     this.socket.onerror = this.onError;
@@ -266,31 +272,18 @@
                 }
             },
             onOpen: function () {
+                let _this = this;
                 console.log("WebSocket连接成功!");
+                setInterval(function(){
+                    _this.transImage(document.querySelector('video'));
+                }, 50); //50ms发送一次
+                // this.socket.binaryType = "arraybuffer"; //设置发送消息类型
+                // this.socket.send("Hello!");
             },
             onMessage: function(event){
-                if(event.data === "File Available"){
-                    this.$message({
-                        message: '恭喜你，这是一条成功消息',
-                        type: 'success'
-                    });
-                    //TODO 请求从数据库拉取姿态数据
-                    // $.ajax({
-                    //     url:'',
-                    //     dataType:'json',
-                    //     data:{},
-                    //     type:'POST',
-                    //     success:function (data) {
-                    //         sessionStorage.setItem("pose", data); //前端缓存姿态数据
-                    //         console.log("数据保存完成")
-                    //     },
-                    //     error:function () {
-                    //         console.log("数据拉取失败")
-                    //     }
-                    //
-                    // });
-
-
+                if(event.data){
+                    console.log("接收到来自后台的消息：" + event.data);
+                    gameInstance.SendMessage("Philip", "GetPose", event.data); //调用Unity内部方法，将姿态数据传入
                 }
             },
             onError: function(){
@@ -298,49 +291,20 @@
             },
             onClose: function(){
                 console.log("WebSocket关闭！");
-            }
-
-
-
-            // recordVideo: function (stream) { //录制实时视频
-            //     let _this = this;
-            //     let options;
-            //     if (typeof MediaRecorder.isTypeSupported == 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
-            //         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-            //             options = {mimeType: 'video/webm;codecs=vp8'};
-            //         }
-            //         console.log('Using '+options.mimeType);
-            //         mediaRecorder = new MediaRecorder(stream, options);
-            //     }else{
-            //         log('isTypeSupported is not supported, using default codecs for browser');
-            //         mediaRecorder = new MediaRecorder(stream);
-            //     }
-            //
-            //     mediaRecorder.ondataavailable = function(event) { //当视频数据准备完成时回调
-            //         // this.chunks.push(event.data);
-            //         let reader = new FileReader();
-            //         reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
-            //             let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
-            //             console.log(buf);
-            //             if(reader.result.byteLength > 0){ //空数据不进行发送
-            //                 _this.socket.send(buf);
-            //             }
-            //         });
-            //         reader.readAsArrayBuffer(event.data);
-            //     };
-            //     mediaRecorder.onerror = function(e){
-            //         console.log('实时视频录制出错：' + e);
-            //     };
-            //     mediaRecorder.onstart = function(){
-            //         console.log('实时视频开始录制：' + mediaRecorder.state);
-            //     };
-            //     mediaRecorder.start(10); //每10ms记录成一个Blob
-            // }
-
+            },
+            changeTrans:function () { //按钮调用，用于启动图像传输
+                let _this = this;
+                _this.button2.enable = !_this.button2.enable;
+                if(_this.button2.enable){
+                    _this.button2.buttonType = 'danger';
+                    _this.myTimer = setInterval(function(){
+                        _this.transImage(document.querySelector('video'));
+                    }, 100); //50ms发送一次
+                } else {
+                    clearInterval(_this.myTimer);
+                    _this.button2.buttonType = 'success';
+                }
+            },
         },
         components:{
             dataBox:DataBox,

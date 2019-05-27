@@ -3,6 +3,7 @@ package io.renren.imgProcess.service.redisService;
 import com.alibaba.fastjson.JSONObject;
 
 import io.renren.fileCenter.controller.WebSocketController;
+import io.renren.fileCenter.entity.UserPose;
 import io.renren.fileCenter.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class FileMessageListener implements MessageListener {
@@ -32,6 +34,12 @@ public class FileMessageListener implements MessageListener {
 //            System.out.println("文件下载成功！");
 //        }
 //        TODO: ws+下载
+
+        //TODO：mySQL持久化
+        UserPose userPose = new UserPose();
+        userPose.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+        String pose = "aaa";
+        userPose.setPose(pose);
 
         //TODO userToken
         try {

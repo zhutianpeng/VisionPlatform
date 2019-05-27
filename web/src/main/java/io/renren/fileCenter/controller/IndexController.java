@@ -20,4 +20,9 @@ public class IndexController {
     public String free(){
         return "free";
     }
+
+    @RequestMapping("/realTime2D")
+    public String realTime2D(){
+        return "exercise2D";
+    }
 }

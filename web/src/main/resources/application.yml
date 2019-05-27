@@ -9,7 +9,14 @@ server:
     context-path: /VisionPlatform_web
 
 spring:
-#  mvc:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url:
+    username:
+    password:
+
+  #  mvc:
 #    view:
 #      suffix: .jsp
 #      prefix: /WEB-INF/jsp/

@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestController
-@Api(tags="文件上传")
+@Api(tags="离线3D姿态数据处理")
 public class FileFtpController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class FileFtpController {
     private User user;
 
     @ApiOperation("上传")
-    @RequestMapping(value = "/ftpUpload",method = RequestMethod.POST ,consumes = "multipart/form-data")
+    @RequestMapping(value = "/ftpUpload", method = RequestMethod.POST ,consumes = "multipart/form-data")
     public void uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile)
     {
         //指定存放上传文件的目录
@@ -88,6 +88,4 @@ public class FileFtpController {
         String local_dir = "K:\\workplace\\fileUpload\\";
         fileService.downloadToFtp(file_dir,fileName,local_dir);
     }
-
-
 }
