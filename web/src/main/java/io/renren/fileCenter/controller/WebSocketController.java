@@ -72,6 +72,7 @@ public class WebSocketController {
     public synchronized void webSocketInit(String userToken, Session session){
         this.userToken = userToken;
         this.session = session;
+        webSocketSet.add(this);
         addOnlineCount();
         System.out.println("有一个连接开启，来自用户： " + this.userToken + " 当前在线人数为: " + getOnlineCount());
     }
