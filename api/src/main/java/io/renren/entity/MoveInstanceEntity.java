@@ -1,8 +1,11 @@
 package io.renren.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @Author: Song
@@ -54,5 +57,10 @@ public class MoveInstanceEntity {
      * 暂定—动作数据
      */
     private String leftorright;
+    /**
+     * 训练关节
+     */
+    @TableField(exist = false)
+    private List<MotionInstanceEntity> motionInstanceList;
 
 }

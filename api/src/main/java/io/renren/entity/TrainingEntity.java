@@ -1,10 +1,12 @@
 package io.renren.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: Song
@@ -60,5 +62,10 @@ public class TrainingEntity {
      * 病人可见
      */
     private Integer visibility;
+    /**
+     * 训练动作
+     */
+    @TableField(exist = false)
+    private List<MoveInstanceEntity> moveInstanceList;
 
 }

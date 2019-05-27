@@ -104,9 +104,15 @@
         <div class="data-main">
             <div class="main-left">
                 <data-box :title="'训练计划选择区'" :dheight="800">
-                    <el-select v-model="trainingName" placeholder="选择用户训练计划">
-                        <el-option v-for="item in trainingList" :label="item.name" :value="item.name"></el-option>
+                    <el-select v-model="trainingId" placeholder="选择用户训练计划">
+                        <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
                     </el-select>
+                    <el-card class="box-card" v-for="item in training.moveInstanceList">
+                        <el-radio v-model="radio" label="">备选项</el-radio>
+                        <div v-for="(value, key) in item" class="text item">
+                            {{key}} : {{value}}
+                        </div>
+                    </el-card>
                 </data-box>
             </div>
             <div class="main-center">
@@ -214,38 +220,1451 @@
             },
             myTimer:'', //定时器
             poseData:{},
-            trainingName:'',
-            trainingList:[{
-                moveList:[{
-                    "moveinstanceId": 194,
-                    "movetypeName": "单腿下蹲-半蹲-右",
-                    "movesetId": 81,
-                    "movetypeId": 24,
-                    "groupsPerRepeat": 1,
-                    "timesPerGroup": 3,
-                    "restBetweenGroup": 30,
-                    "rhythm": "5,1,1",
-                    "sequence": 1,
-                    "leftorright": null,
-                    motionList: [{},{}]
-                },{
-                    "moveinstanceId": 386,
-                    "movetypeName": "坐位伸膝-右",
-                    "movesetId": 118,
-                    "movetypeId": 25,
-                    "groupsPerRepeat": 2,
-                    "timesPerGroup": 3,
-                    "restBetweenGroup": 30,
-                    "rhythm": "1,3,1",
-                    "sequence": 1,
-                    "leftorright": null,
-                    motionInstanceList: [{},{}]
-                }]
-            },{
+            trainingList:[
+                {
+                    "trainingId": 74,
+                    "userId": 4,
+                    "name": "cecilia-01112018-1",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-02-27T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 73,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 185,
+                            "movetypeName": "坐位伸膝-右",
+                            "movesetId": 74,
+                            "movetypeId": 25,
+                            "groupsPerRepeat": 3,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 30,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 243,
+                                    "movetypeinstanceId": 185,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 186,
+                            "movetypeName": "仰卧屈髋屈膝-右",
+                            "movesetId": 74,
+                            "movetypeId": 26,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 60,
+                            "rhythm": "5,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 244,
+                                    "movetypeinstanceId": 186,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 40,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 187,
+                            "movetypeName": "单腿下蹲-半蹲-右",
+                            "movesetId": 74,
+                            "movetypeId": 24,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,3,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 245,
+                                    "movetypeinstanceId": 187,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 94,
+                    "userId": 4,
+                    "name": "cecilia-01172018-1",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-01-30T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 93,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 202,
+                            "movetypeName": "双腿下蹲",
+                            "movesetId": 89,
+                            "movetypeId": 42,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 4,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 261,
+                                    "movetypeinstanceId": 202,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                },
+                                {
+                                    "jointmotioninstanceId": 262,
+                                    "movetypeinstanceId": 202,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 98,
+                    "userId": 4,
+                    "name": "ceilia-01192018-1",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-02-14T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 97,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 207,
+                            "movetypeName": "双腿下蹲",
+                            "movesetId": 92,
+                            "movetypeId": 42,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 269,
+                                    "movetypeinstanceId": 207,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 40,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                },
+                                {
+                                    "jointmotioninstanceId": 270,
+                                    "movetypeinstanceId": 207,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 40,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 208,
+                            "movetypeName": "踝屈伸",
+                            "movesetId": 92,
+                            "movetypeId": 51,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 271,
+                                    "movetypeinstanceId": 208,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 33,
+                                    "bone2": -2,
+                                    "sign": null
+                                },
+                                {
+                                    "jointmotioninstanceId": 272,
+                                    "movetypeinstanceId": 208,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 34,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 209,
+                            "movetypeName": "坐位伸膝-左",
+                            "movesetId": 92,
+                            "movetypeId": 52,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 3,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 273,
+                                    "movetypeinstanceId": 209,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 80,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 100,
+                    "userId": 4,
+                    "name": "cyx-test-20180119",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-10-30T16:00:00.000+0000",
+                    "endtime": "2018-01-30T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 99,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 211,
+                            "movetypeName": "单腿下蹲-半蹲-右",
+                            "movesetId": 94,
+                            "movetypeId": 24,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 275,
+                                    "movetypeinstanceId": 211,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 0,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 102,
+                    "userId": 4,
+                    "name": "cecilia-01192018-2",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-01-30T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 101,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 221,
+                            "movetypeName": "仰卧屈髋屈膝-左",
+                            "movesetId": 96,
+                            "movetypeId": 53,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 285,
+                                    "movetypeinstanceId": 221,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 222,
+                            "movetypeName": "弹力带牵拉被动屈膝-右",
+                            "movesetId": 96,
+                            "movetypeId": 54,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 286,
+                                    "movetypeinstanceId": 222,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 68,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 223,
+                            "movetypeName": "弹力带牵拉被动屈膝-左",
+                            "movesetId": 96,
+                            "movetypeId": 55,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 287,
+                                    "movetypeinstanceId": 223,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 224,
+                            "movetypeName": "被动屈膝-右",
+                            "movesetId": 96,
+                            "movetypeId": 56,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 4,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 288,
+                                    "movetypeinstanceId": 224,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 225,
+                            "movetypeName": "被动屈膝-左",
+                            "movesetId": 96,
+                            "movetypeId": 57,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 5,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 289,
+                                    "movetypeinstanceId": 225,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 226,
+                            "movetypeName": "仰卧举腿(屈髋)-右",
+                            "movesetId": 96,
+                            "movetypeId": 58,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 6,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 290,
+                                    "movetypeinstanceId": 226,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 227,
+                            "movetypeName": "仰卧举腿(屈髋)-左",
+                            "movesetId": 96,
+                            "movetypeId": 59,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 7,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 291,
+                                    "movetypeinstanceId": 227,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 228,
+                            "movetypeName": "俯卧举腿(伸髋)-右",
+                            "movesetId": 96,
+                            "movetypeId": 60,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 8,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 292,
+                                    "movetypeinstanceId": 228,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 229,
+                            "movetypeName": "俯卧举腿(伸髋)-左",
+                            "movesetId": 96,
+                            "movetypeId": 61,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 9,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 293,
+                                    "movetypeinstanceId": 229,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 104,
+                    "userId": 4,
+                    "name": "cecilia-01192018-3",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-02-01T16:00:00.000+0000",
+                    "defaultdays": 90,
+                    "parent": 103,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 235,
+                            "movetypeName": "站位屈膝-右",
+                            "movesetId": 98,
+                            "movetypeId": 62,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 299,
+                                    "movetypeinstanceId": 235,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 236,
+                            "movetypeName": "站位屈膝-左",
+                            "movesetId": 98,
+                            "movetypeId": 63,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 300,
+                                    "movetypeinstanceId": 236,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 237,
+                            "movetypeName": "俯卧屈膝-右",
+                            "movesetId": 98,
+                            "movetypeId": 64,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 301,
+                                    "movetypeinstanceId": 237,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 19,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 238,
+                            "movetypeName": "俯卧屈膝-左",
+                            "movesetId": 98,
+                            "movetypeId": 65,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 4,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 302,
+                                    "movetypeinstanceId": 238,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 21,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 239,
+                            "movetypeName": "单腿下蹲-半蹲-左",
+                            "movesetId": 98,
+                            "movetypeId": 66,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 5,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 303,
+                                    "movetypeinstanceId": 239,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 70,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 116,
+                    "userId": 4,
+                    "name": "cecilia-01262018-1",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-03-30T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 115,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 317,
+                            "movetypeName": "坐位伸膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 25,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 380,
+                                    "movetypeinstanceId": 317,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 318,
+                            "movetypeName": "仰卧屈髋屈膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 26,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 381,
+                                    "movetypeinstanceId": 318,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 319,
+                            "movetypeName": "单腿下蹲-半蹲-右",
+                            "movesetId": 110,
+                            "movetypeId": 24,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 382,
+                                    "movetypeinstanceId": 319,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 320,
+                            "movetypeName": "坐位伸膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 52,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 4,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 383,
+                                    "movetypeinstanceId": 320,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 321,
+                            "movetypeName": "仰卧屈髋屈膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 53,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 5,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 384,
+                                    "movetypeinstanceId": 321,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 322,
+                            "movetypeName": "弹力带牵拉被动屈膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 54,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 6,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 385,
+                                    "movetypeinstanceId": 322,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 323,
+                            "movetypeName": "弹力带牵拉被动屈膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 55,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 7,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 386,
+                                    "movetypeinstanceId": 323,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 324,
+                            "movetypeName": "被动屈膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 56,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 8,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 387,
+                                    "movetypeinstanceId": 324,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 325,
+                            "movetypeName": "被动屈膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 57,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 9,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 388,
+                                    "movetypeinstanceId": 325,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 326,
+                            "movetypeName": "仰卧举腿(屈髋)-右",
+                            "movesetId": 110,
+                            "movetypeId": 58,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 10,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 389,
+                                    "movetypeinstanceId": 326,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 327,
+                            "movetypeName": "仰卧举腿(屈髋)-左",
+                            "movesetId": 110,
+                            "movetypeId": 59,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 11,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 390,
+                                    "movetypeinstanceId": 327,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 328,
+                            "movetypeName": "俯卧举腿(伸髋)-右",
+                            "movesetId": 110,
+                            "movetypeId": 60,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 12,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 391,
+                                    "movetypeinstanceId": 328,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 329,
+                            "movetypeName": "俯卧举腿(伸髋)-左",
+                            "movesetId": 110,
+                            "movetypeId": 61,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 13,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 392,
+                                    "movetypeinstanceId": 329,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 330,
+                            "movetypeName": "站位屈膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 62,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 14,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 393,
+                                    "movetypeinstanceId": 330,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 331,
+                            "movetypeName": "站位屈膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 63,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 15,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 394,
+                                    "movetypeinstanceId": 331,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 332,
+                            "movetypeName": "俯卧屈膝-右",
+                            "movesetId": 110,
+                            "movetypeId": 64,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 16,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 395,
+                                    "movetypeinstanceId": 332,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 333,
+                            "movetypeName": "俯卧屈膝-左",
+                            "movesetId": 110,
+                            "movetypeId": 65,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 17,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 396,
+                                    "movetypeinstanceId": 333,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 0,
+                                    "bone1": 21,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "trainingId": 118,
+                    "userId": 4,
+                    "name": "cecilia-01262018-1",
+                    "dayofweek": "1,2,3,4,5,6,7,",
+                    "starttime": "2017-12-31T16:00:00.000+0000",
+                    "endtime": "2018-03-30T16:00:00.000+0000",
+                    "defaultdays": null,
+                    "parent": 115,
+                    "docUserId": 3,
+                    "repeatPerDay": "1",
+                    "visibility": 1,
+                    "moveInstanceList": [
+                        {
+                            "moveinstanceId": 351,
+                            "movetypeName": "坐位伸膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 25,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 1,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 414,
+                                    "movetypeinstanceId": 351,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 352,
+                            "movetypeName": "仰卧屈髋屈膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 26,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 2,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 415,
+                                    "movetypeinstanceId": 352,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 353,
+                            "movetypeName": "单腿下蹲-半蹲-右",
+                            "movesetId": 112,
+                            "movetypeId": 24,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 3,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 416,
+                                    "movetypeinstanceId": 353,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 354,
+                            "movetypeName": "坐位伸膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 52,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 4,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 417,
+                                    "movetypeinstanceId": 354,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 355,
+                            "movetypeName": "仰卧屈髋屈膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 53,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 5,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 418,
+                                    "movetypeinstanceId": 355,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 356,
+                            "movetypeName": "弹力带牵拉被动屈膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 54,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 6,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 419,
+                                    "movetypeinstanceId": 356,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 357,
+                            "movetypeName": "弹力带牵拉被动屈膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 55,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 7,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 420,
+                                    "movetypeinstanceId": 357,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 358,
+                            "movetypeName": "被动屈膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 56,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 8,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 421,
+                                    "movetypeinstanceId": 358,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 359,
+                            "movetypeName": "被动屈膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 57,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 9,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 422,
+                                    "movetypeinstanceId": 359,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 60,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 360,
+                            "movetypeName": "仰卧举腿(屈髋)-右",
+                            "movesetId": 112,
+                            "movetypeId": 58,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 10,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 423,
+                                    "movetypeinstanceId": 360,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 361,
+                            "movetypeName": "仰卧举腿(屈髋)-左",
+                            "movesetId": 112,
+                            "movetypeId": 59,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 11,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 424,
+                                    "movetypeinstanceId": 361,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 362,
+                            "movetypeName": "俯卧举腿(伸髋)-右",
+                            "movesetId": 112,
+                            "movetypeId": 60,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 12,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 425,
+                                    "movetypeinstanceId": 362,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 20,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 363,
+                            "movetypeName": "俯卧举腿(伸髋)-左",
+                            "movesetId": 112,
+                            "movetypeId": 61,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 13,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 426,
+                                    "movetypeinstanceId": 363,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 30,
+                                    "bone1": 22,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 364,
+                            "movetypeName": "站位屈膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 62,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 14,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 427,
+                                    "movetypeinstanceId": 364,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": 20,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 365,
+                            "movetypeName": "站位屈膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 63,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 15,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 428,
+                                    "movetypeinstanceId": 365,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 21,
+                                    "bone2": 22,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 366,
+                            "movetypeName": "俯卧屈膝-右",
+                            "movesetId": 112,
+                            "movetypeId": 64,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 16,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 429,
+                                    "movetypeinstanceId": 366,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 90,
+                                    "bone1": 19,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        },
+                        {
+                            "moveinstanceId": 367,
+                            "movetypeName": "俯卧屈膝-左",
+                            "movesetId": 112,
+                            "movetypeId": 65,
+                            "groupsPerRepeat": 1,
+                            "timesPerGroup": 1,
+                            "restBetweenGroup": 60,
+                            "rhythm": "1,1,1",
+                            "sequence": 17,
+                            "leftorright": null,
+                            "motionInstanceList": [
+                                {
+                                    "jointmotioninstanceId": 430,
+                                    "movetypeinstanceId": 367,
+                                    "jointmotionName": "undefined",
+                                    "rotateAngle": 0,
+                                    "bone1": 21,
+                                    "bone2": -2,
+                                    "sign": null
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            trainingId:'', //用户选择的训练计划ID
+            training:{}, //用户选择的训练计划
+            motionInstanceId:''
 
-            }]
+
         },
         mounted: function(){
+            this.getTrainingPlan();
             // this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2Dv5.json", {onProgress: UnityProgress});
 
             this.initCamera(); //初始化摄像头
@@ -253,17 +1672,26 @@
 
 
         },
+        watch:{
+            trainingId: function (newVal) { //筛选出符合条件的训练计划
+                this.training = this.trainingList.filter(function (item) {
+                     return item.trainingId === newVal;
+                })[0];
+            }
+        },
         methods:{
             getTrainingPlan:function(){ //拉取该用户的所有训练计划
+                let _this = this;
                 $.ajax({
-                    url: '',
+                    url: 'http://localhost:8080/VisionPlatform_web/api/getTraining',
                     dataType: 'json',
-                    data: '',
+                    contentType : 'application/json',
+                    data: JSON.stringify({
+                        userId: 4
+                    }),
                     type: 'POST',
                     success: function (data) {
-                        for(let item of data){
-                            
-                        }
+                        _this.trainingList = data.map;
                     },
                     error: function () {
                         console.log("用户训练计划拉取失败！")
