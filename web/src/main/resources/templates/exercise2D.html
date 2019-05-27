@@ -108,15 +108,24 @@
                         <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
                     </el-select>
                     <el-card class="box-card" v-for="item in training.moveInstanceList">
-                        <el-radio v-model="radio" label="">备选项</el-radio>
-                        <div v-for="(value, key) in item" class="text item">
-                            {{key}} : {{value}}
-                        </div>
+                        <el-radio v-model="moveId" :label="item.moveinstanceId">{{item.movetypeName}}</el-radio>
+                        <img :src="item.moveImage" height="100%" width="100%">
+                        <!--<div v-for="(value, key) in item" class="text item">-->
+                            <!--{{key}} : {{value}}-->
+                        <!--</div>-->
                     </el-card>
                 </data-box>
             </div>
             <div class="main-center">
                 <data-box :title="'动作参数展示区'" :dheight="300">
+                    <el-card class="box-card">
+                        <img :src="move.motionImage" height="100%">
+                        <div v-for="item in move.motionInstanceList" class="text item">
+                            <div v-for="(value, key) in item" class="text item">
+                                {{key}} : {{value}}
+                            </div>
+                        </div>
+                    </el-card>
                 </data-box>
                 <data-box :title="'实时Unity3D动画'" :dheight="500" :icon="'account'" :boxb="false">
                     <div>
@@ -1659,7 +1668,8 @@
             ],
             trainingId:'', //用户选择的训练计划ID
             training:{}, //用户选择的训练计划
-            motionInstanceId:''
+            moveId:'', //用户选择的动作ID
+            move:{} //用户选择的动作
 
 
         },
@@ -1676,6 +1686,11 @@
             trainingId: function (newVal) { //筛选出符合条件的训练计划
                 this.training = this.trainingList.filter(function (item) {
                      return item.trainingId === newVal;
+                })[0];
+            },
+            moveId: function(newVal) { //监听用户选择的动作
+                this.move = this.training.moveInstanceList.filter(function(item){
+                    return item.moveinstanceId === newVal;
                 })[0];
             }
         },

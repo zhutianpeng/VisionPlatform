@@ -58,6 +58,16 @@ public class MoveInstanceEntity {
      */
     private String leftorright;
     /**
+     * 训练动作预览图
+     */
+    @TableField(exist = false)
+    private String moveImage;
+    /**
+     * 训练关节图
+     */
+    @TableField(exist = false)
+    private String motionImage;
+    /**
      * 训练关节
      */
     @TableField(exist = false)
