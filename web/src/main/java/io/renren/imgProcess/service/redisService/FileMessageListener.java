@@ -19,18 +19,18 @@ public class FileMessageListener implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        JSONObject json = JSONObject.parseObject(message.toString());
-        String file_path = json.getString("resultPath");
+//        JSONObject json = JSONObject.parseObject(message.toString());
+//        String file_path = json.getString("resultPath");
+//
+//        String fName = file_path.trim();
+//        String file_name = fName.substring(fName.lastIndexOf("/")+1);
+//        String file_dir = fName.substring(0,fName.lastIndexOf("/")+1);
+////        Fixme:这里不能这样存，最好是做持久化,入库
+//        String local_dir = "K:\\workplace\\fileUpload\\";
 
-        String fName = file_path.trim();
-        String file_name = fName.substring(fName.lastIndexOf("/")+1);
-        String file_dir = fName.substring(0,fName.lastIndexOf("/")+1);
-//        Fixme:这里不能这样存，最好是做持久化,入库
-        String local_dir = "K:\\workplace\\fileUpload\\";
-
-        if(fileService.downloadToFtp(file_dir,file_name,local_dir)){
-            System.out.println("文件下载成功！");
-        }
+//        if(fileService.downloadToFtp(file_dir,file_name,local_dir)){
+//            System.out.println("文件下载成功！");
+//        }
 //        TODO: ws+下载
 
         //TODO userToken

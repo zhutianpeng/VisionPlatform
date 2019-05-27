@@ -105,7 +105,7 @@
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'操作面板'" :dheight="400" :icon="'account'" :boxb="false">
                         <div style="padding: 10%">
-                            <form action="/ftpUpload" method="post" enctype="multipart/form-data">
+                            <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data">
                                 <p><input type="file" name="fileName"/></p>
                                 <p><input type="submit" value="upload"/></p>
                             </form>
@@ -221,9 +221,9 @@
             poseData:{}
         },
         mounted: function(){
-            let unityUrl = "[[@{/webGL/Build/Receiver2D.json}]]";
-            debugger;
-            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            // let unityUrl = "[[@{/webGL/Build/Receiver2D.json}]]";
+            // debugger;
+            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
 
             this.initCamera(); //初始化摄像头
             this.initWebSocket(); //初始化WebSocket
@@ -266,23 +266,23 @@
                 console.log("WebSocket连接成功!");
             },
             onMessage: function(event){
-                if(event.data.equals("File Available")){
+                if(event.data === "File Available"){
                     console.log("File Available");
                     //TODO 请求从数据库拉取姿态数据
-                    $.ajax({
-                        url:'',
-                        dataType:'json',
-                        data:{},
-                        type:'POST',
-                        success:function (data) {
-                            sessionStorage.setItem("pose", data); //前端缓存姿态数据
-                            console.log("数据保存完成")
-                        },
-                        error:function () {
-                            console.log("数据拉取失败")
-                        }
-
-                    });
+                    // $.ajax({
+                    //     url:'',
+                    //     dataType:'json',
+                    //     data:{},
+                    //     type:'POST',
+                    //     success:function (data) {
+                    //         sessionStorage.setItem("pose", data); //前端缓存姿态数据
+                    //         console.log("数据保存完成")
+                    //     },
+                    //     error:function () {
+                    //         console.log("数据拉取失败")
+                    //     }
+                    //
+                    // });
 
 
                 }

@@ -36,7 +36,7 @@ public class FileFtpController {
     public void uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile)
     {
         //指定存放上传文件的目录
-        String fileDir = "K:\\workplace\\fileUpload";
+        String fileDir = "F:\\Projects\\pose";
         File dir = new File(fileDir);
 
         //判断目录是否存在，不存在则创建目录
