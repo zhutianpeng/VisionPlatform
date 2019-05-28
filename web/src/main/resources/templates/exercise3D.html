@@ -110,6 +110,8 @@
                                 <p><input type="file" name="fileName"/></p>
                                 <p><input type="submit" value="上传文件"/></p>
                             </form>
+                            <el-button type="success" v-if="dataAvailable" @click="startPlaying">开始播放</el-button>
+                            <el-button type="danger" v-if="dataAvailable" @Click="stopPlaying">停止播放</el-button>
                         </div>
                     </data-box>
                     <data-box :title="'数据展示区'" :dheight="400" :icon="'account'" :boxb="false">
@@ -127,6 +129,8 @@
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'动作选择面板'" :dheight="400" :boxb="false">
+                        <el-button type="success" @click="startRecording" :disabled="!stopDisabled">开始录制</el-button>
+                        <el-button type="danger" @Click="stopRecording" :disabled="stopDisabled">停止录制</el-button>
                     </data-box>
                     <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
                         <video style="width: 100%; height: 100%" autoplay></video>
@@ -159,18 +163,23 @@
         el:'#exercise3D',
         data:{
             gameInstance:'',
+            mediaRecorder:'',
+            chunks: [],
+            stopDisabled: true, //停止录制按钮是否禁用，初始为禁用状态
             sendMsg:{
                 userToken:'fishhao123',
                 image:'',
                 task:1
             },
             myTimer:'', //定时器
-            poseData:{}
+            poseData:{},
+            dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
             let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
-            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
+
             this.initWebSocket(); //初始化WebSocket
         },
         methods:{
@@ -181,18 +190,58 @@
                 navigator.mediaDevices.getUserMedia(constraints)
                     .then(function(mediaStream) {
                         video.srcObject = mediaStream;
+                        _this.initRecorder(mediaStream);
                     })
                     .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
             },
-            change:function(){ //控制WebGL激活/禁用脚本
-                this.gameInstance.SendMessage("Philip", "ChangeState");
-                console.log("脚本状态改变！");
-                this.button.enable = !this.button.enable;
-                if(this.button.enable){
-                    this.button.buttonType = 'danger';
-
+            initRecorder: function(stream){
+                let _this = this;
+                let options;
+                if (typeof MediaRecorder.isTypeSupported === 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
+                    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                        options = {mimeType: 'video/webm;codecs=vp9'};
+                    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+                        options = {mimeType: 'video/webm;codecs=h264'};
+                    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                        options = {mimeType: 'video/webm;codecs=vp8'};
+                    }
+                    console.log('Using '+options.mimeType);
+                    _this.mediaRecorder = new MediaRecorder(stream, options);
                 }else{
-                    this.button.buttonType = 'success';
+                    console.log('isTypeSupported is not supported, using default codecs for browser');
+                    _this.mediaRecorder = new MediaRecorder(stream);
+                }
+
+                //当视频数据准备完成时的回调函数
+                _this.mediaRecorder.ondataavailable = function(event) {
+                    _this.chunks.push(event.data);
+
+
+                    // this.chunks.push(event.data);
+                    // let reader = new FileReader();
+                    // reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
+                    //     let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
+                    //     console.log(buf); //TODO 下载到本地
+                    //     if(reader.result.byteLength > 0){ //空数据不进行发送
+                    //         _this.socket.send(buf);
+                    //     }
+                    // });
+                    // reader.readAsArrayBuffer(event.data);
+                };
+                _this.mediaRecorder.onerror = function(e){
+                    console.log('视频录制出错：' + e);
+                };
+                _this.mediaRecorder.onstart = function(){
+                    console.log('视频开始录制：' + _this.mediaRecorder.state);
+                };
+                _this.mediaRecorder.onstop = function(){
+                    console.log('停止视频录制');
+                    let blob = new Blob(_this.chunks, {type: 'video/webm'});
+                    _this.chunks = [];
+                    let a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'test.webm';
+                    a.click();
                 }
             },
             initWebSocket: function () {
@@ -233,7 +282,7 @@
                         sessionStorage.setItem("userPose", data.userPose); //前端缓存姿态数据
                         console.log("数据保存完成");
                         _this.$message({
-                            message: '姿态数据已下载完成',
+                            message: '姿态数据已准备完成，可以开始播放',
                             type: 'success'
                         });
                     },
@@ -241,49 +290,22 @@
                         console.log("数据拉取失败")
                     }
                 });
+            },
+            startPlaying: function () { //数据准备完成后开始播放按钮回调函数
+                let poseData = sessionStorage.getItem("userPose");
+                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData.toString()); //调用Unity内部方法，将姿态数据传入
+            },
+            stopPlaying: function () { //停止播放
+                this.gameInstance.SendMessage("BoxUnityChan", "StopAction");
+            },
+            startRecording: function () { //开始录制
+                this.mediaRecorder.start(10);
+                this.stopDisabled = false; //解除“停止录制”按钮的禁用状态
+            },
+            stopRecording: function () { //结束录制
+                this.mediaRecorder.stop();
+                this.stopDisabled = true; //禁用“停止录制”按钮
             }
-
-
-
-            // recordVideo: function (stream) { //录制实时视频
-            //     let _this = this;
-            //     let options;
-            //     if (typeof MediaRecorder.isTypeSupported == 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
-            //         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-            //             options = {mimeType: 'video/webm;codecs=vp8'};
-            //         }
-            //         console.log('Using '+options.mimeType);
-            //         mediaRecorder = new MediaRecorder(stream, options);
-            //     }else{
-            //         log('isTypeSupported is not supported, using default codecs for browser');
-            //         mediaRecorder = new MediaRecorder(stream);
-            //     }
-            //
-            //     mediaRecorder.ondataavailable = function(event) { //当视频数据准备完成时回调
-            //         // this.chunks.push(event.data);
-            //         let reader = new FileReader();
-            //         reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
-            //             let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
-            //             console.log(buf);
-            //             if(reader.result.byteLength > 0){ //空数据不进行发送
-            //                 _this.socket.send(buf);
-            //             }
-            //         });
-            //         reader.readAsArrayBuffer(event.data);
-            //     };
-            //     mediaRecorder.onerror = function(e){
-            //         console.log('实时视频录制出错：' + e);
-            //     };
-            //     mediaRecorder.onstart = function(){
-            //         console.log('实时视频开始录制：' + mediaRecorder.state);
-            //     };
-            //     mediaRecorder.start(10); //每10ms记录成一个Blob
-            // }
-
         },
         components:{
             dataBox:DataBox,

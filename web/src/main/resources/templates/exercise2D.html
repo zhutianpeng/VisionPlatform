@@ -263,8 +263,9 @@
         methods:{
             getTrainingPlan:function(){ //拉取该用户的所有训练计划
                 let _this = this;
+                let postUrl = /*[[@{/api/getTraining}]]*/ 'Sebastian';
                 $.ajax({
-                    url: '/api/getTraining',
+                    url: postUrl,
                     dataType: 'json',
                     contentType : 'application/json',
                     data: JSON.stringify({
