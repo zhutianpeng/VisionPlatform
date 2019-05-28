@@ -81,13 +81,13 @@
     }
 </style>
 <body>
-<div class="data-page" id="app">
-    <el-menu style="border-bottom: none" :default-active="'1'" class="el-menu-demo" mode="horizontal" background-color="black" text-color="#fff" active-text-color="#ffd04b">
-        <el-menu-item index="1"><a href="${pageContext.request.contextPath}/free">自由锻炼</a></el-menu-item>
+<div class="data-page" id="free">
+    <el-menu style="border-bottom: none" :default-active="'2'" class="el-menu-demo" mode="horizontal" background-color="black" text-color="#fff" active-text-color="#ffd04b">
+        <el-menu-item index="1"><a th:href="@{/free}">自由锻炼</a></el-menu-item>
         <el-submenu index="2">
             <template slot="title">康复健身</template>
-            <el-menu-item index="exercise2D"><a href="${pageContext.request.contextPath}/exercise2D">实时2D</a></el-menu-item>
-            <el-menu-item index="exercise3D"><a href="${pageContext.request.contextPath}/exercise3D">离线3D</a></el-menu-item>
+            <el-menu-item index="exercise2D"><a th:href="@{/realTime2D}">实时2D</a></el-menu-item>
+            <el-menu-item index="exercise3D"><a th:href="@{/offLine3D}">离线3D</a></el-menu-item>
         </el-submenu>
     </el-menu>
     <div class="header">
@@ -151,7 +151,7 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript" th:inline="javascript">
 
     var url, destination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
@@ -220,8 +220,8 @@
     }, stompOnError);
 
 
-    var app = new Vue({
-        el:'#app',
+    var free = new Vue({
+        el:'#free',
         data:{
             stompInfo:{
                 url: "ws://10.103.238.165:61614",
@@ -286,7 +286,9 @@
         },
         mounted: function(){
             this.initPage(); //页面组件初始化
-            this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2D.json", {onProgress: UnityProgress});
+            let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
+            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+
 
             this.initCamera(); //初始化摄像头
             // this.initWebSocket(); //初始化WebSocket

@@ -1,4 +1,4 @@
-package io.renren.fileCenter.entity;
+package io.renren.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 
 @Data
 @TableName("user_pose")
-public class UserPose implements Serializable {
+public class UserPoseEntity implements Serializable {
 
     @TableId(value = "id")
     private String Id;

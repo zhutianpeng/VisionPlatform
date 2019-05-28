@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
+    <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script><!--jquery表单提交-->
     <script th:src="@{/webGL/TemplateData/UnityProgress.js}"></script>
     <script th:src="@{/webGL/Build/UnityLoader.js}"></script>
     <link rel="stylesheet" th:href="@{/webGL/TemplateData/style.css}">
@@ -90,7 +91,7 @@
         <el-submenu index="2">
             <template slot="title">康复健身</template>
             <el-menu-item index="exercise2D"><a th:href="@{/realTime2D}">实时2D</a></el-menu-item>
-            <el-menu-item index="exercise3D"><a href="@{/offLine3D}">离线3D</a></el-menu-item>
+            <el-menu-item index="exercise3D"><a th:href="@{/offLine3D}">离线3D</a></el-menu-item>
         </el-submenu>
     </el-menu>
     <div class="header">
@@ -105,7 +106,7 @@
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'操作面板'" :dheight="400" :icon="'account'" :boxb="false">
                         <div style="padding: 10%">
-                            <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data" id="submitFile" onsubmit="return submitFile()">
+                            <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data" id="videoSubmit" onsubmit="return submitVideo()">
                                 <p><input type="file" name="fileName"/></p>
                                 <p><input type="submit" value="上传文件"/></p>
                             </form>
@@ -139,77 +140,20 @@
 </div>
 
 <script type="text/javascript" th:inline="javascript">
-    function submitFile() { //提交表单
+    function submitVideo() { //重写提交视频文件方法，阻止页面跳转
+        $("#videoSubmit").ajaxSubmit(function (message) {
+            console.log(message);
+            if(message){
+                exercise3D.$message({
+                    message: '文件已上传至服务器',
+                    type: 'success'
+                });
+            }else{
+                exercise3D.$message.error('文件上传失败');
+            }
+        });
         return false;
     }
-
-    var url, destination, login, passcode, userToken;
-    url = "ws://10.103.238.165:61614";
-    destination = "/queue/video";
-    login = "admin";
-    passcode = "password";
-    userToken = "123";
-
-    var pointMapping = { //关节点映射表，由于识别关节点和Unity关节点不同，因此需要进行转换
-        "0": 10,
-        "1": 8,
-        "2": 11,
-        "3": 12,
-        "4": 13,
-        "5": 14,
-        "6": 15,
-        "7": 13,
-        "8": 4,
-        "9": 5,
-        "10": 6,
-        "11": 1,
-        "12": 2,
-        "13": 16
-    };
-    // var client = Stomp.client(url); TODO 暂时关闭
-
-    var stompOnMessage = function (message) {
-        let jsonData = JSON.parse(message.body); //接收数据JSON示例：{'image':'', 'poseResultParsed':''}
-        if (jsonData.poseResultParsed) {
-            let poseArray = JSON.parse(jsonData.poseResultParsed); //单帧二维坐标点数据
-            // for(let i = 0; i < poseArray.length;i ++){ //TODO 多人场景？
-            //
-            // }
-
-            let singlePerson = poseArray[0]; //singlePerson是个JSON对象，key为关节点index值，value为横纵坐标以及置信度所组成的JSON对象
-
-            let singleArray = [];
-            for (let key in singlePerson) {
-                app.poseData[key] = singlePerson[key].c; //填充置信度信息
-                if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
-                    singleArray.push(pointMapping[key]);
-                    singleArray.push(singlePerson[key].x - 150);
-                    singleArray.push(400 - singlePerson[key].y);
-
-                }
-            }
-            if (singleArray) { //数据不为空
-                console.log(singleArray.toString());
-                app.gameInstance.SendMessage("Philip", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
-            }
-        }
-        if(jsonData.image){
-            let img = document.getElementById("targetImg");
-            img.src = jsonData.image;
-        }
-
-    };
-
-    var stompOnError = function (error) {
-        alert(error);
-        console.log("Stomp连接出错！" + error);
-    };
-
-    // // the client is notified when it is connected to the server. TODO 暂时关闭
-    // client.connect(login, passcode, function (frame) {
-    //     client.subscribe("/user/" + userToken + "/video", stompOnMessage);
-    // }, stompOnError);
-
 
     var exercise3D = new Vue({
         el:'#exercise3D',
@@ -224,10 +168,8 @@
             poseData:{}
         },
         mounted: function(){
-            // let unityUrl = "[[@{/webGL/Build/Receiver2D.json}]]";
-            // debugger;
-            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-
+            let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
+            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
             this.initWebSocket(); //初始化WebSocket
         },
@@ -269,28 +211,8 @@
                 console.log("WebSocket连接成功!");
             },
             onMessage: function(event){
-                if(event.data === "File Available"){
-                    this.$message({
-                        message: '恭喜你，这是一条成功消息',
-                        type: 'success'
-                    });
-                    //TODO 请求从数据库拉取姿态数据
-                    // $.ajax({
-                    //     url:'',
-                    //     dataType:'json',
-                    //     data:{},
-                    //     type:'POST',
-                    //     success:function (data) {
-                    //         sessionStorage.setItem("pose", data); //前端缓存姿态数据
-                    //         console.log("数据保存完成")
-                    //     },
-                    //     error:function () {
-                    //         console.log("数据拉取失败")
-                    //     }
-                    //
-                    // });
-
-
+                if(event.data === "File Available"){ //3D数据准备完成可以进行拉取
+                   // this.downLoadData();
                 }
             },
             onError: function(){
@@ -298,6 +220,27 @@
             },
             onClose: function(){
                 console.log("WebSocket关闭！");
+            },
+            downLoadData: function () { //从数据库中下载3D姿态数据
+                let _this = this;
+                let postUrl = '/getUserPose/' + _this.sendMsg.userToken;
+                //TODO 请求从数据库拉取姿态数据
+                $.ajax({
+                    url: postUrl,
+                    dataType:'json',
+                    type:'POST',
+                    success:function (data) {
+                        sessionStorage.setItem("userPose", data.userPose); //前端缓存姿态数据
+                        console.log("数据保存完成");
+                        _this.$message({
+                            message: '姿态数据已下载完成',
+                            type: 'success'
+                        });
+                    },
+                    error:function () {
+                        console.log("数据拉取失败")
+                    }
+                });
             }
 
 

@@ -33,8 +33,9 @@ public class FileFtpController {
 
     @ApiOperation("上传")
     @RequestMapping(value = "/ftpUpload", method = RequestMethod.POST ,consumes = "multipart/form-data")
-    public void uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile)
+    public boolean uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile)
     {
+        boolean flag = false;
         //指定存放上传文件的目录
         String fileDir = "F:\\Projects\\pose";
         File dir = new File(fileDir);
@@ -69,12 +70,14 @@ public class FileFtpController {
         //ftp方式上传至服务器
              //1、上传文件
         if (fileService.uploadToFtp(file)){
-            redisTemplate.convertAndSend("fileChannel",jsonObject.toString());
-            System.out.println("上传至服务器！");
+            redisTemplate.convertAndSend("fileChannel", jsonObject.toString());
+            flag = true;
+            System.out.println("成功上传至服务器！");
         }else {
-            System.out.println("上传至服务器失败!");
+            System.out.println("上传至服务器失败！");
         }
 
+        return flag;
     }
 
 
