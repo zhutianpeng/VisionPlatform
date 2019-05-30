@@ -13,6 +13,8 @@ import java.util.Map;
 
 public interface UserService extends IService<UserEntity> {
 
+	UserEntity queryByUserId(Long userId);
+
 	UserEntity queryByUsername(String username);
 
 	/**
