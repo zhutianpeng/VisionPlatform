@@ -38,6 +38,7 @@ public class TrainingServiceImpl extends ServiceImpl<TrainingDao, TrainingEntity
     @Getter
     @Setter
     public class training{
+        private Long trainingId;
         private String name;
         private String dayofweek;
         private Date starttime;
@@ -46,7 +47,8 @@ public class TrainingServiceImpl extends ServiceImpl<TrainingDao, TrainingEntity
         private String repeatPerDay;
         private List moveList;
 
-        public training(String name, String dayofweek, Date starttime, Date endtime, String docUsername, String repeatPerDay, List moveList){
+        public training(Long trainingId, String name, String dayofweek, Date starttime, Date endtime, String docUsername, String repeatPerDay, List moveList){
+            this.trainingId = trainingId;
             this.name = name;
             this.dayofweek =dayofweek;
             this.starttime = starttime;
@@ -64,7 +66,7 @@ public class TrainingServiceImpl extends ServiceImpl<TrainingDao, TrainingEntity
         List<training> trainingList = new ArrayList<>();
         for(TrainingEntity trainingEntity:trainingEntityList){
             MoveSetEntity moveSet = moveSetService.getMoveSet(trainingEntity.getTrainingId());
-            training training = new training(trainingEntity.getName(), trainingEntity.getDayofweek(), trainingEntity.getStarttime(), trainingEntity.getEndtime(), userService.queryByUserId(trainingEntity.getDocUserId()).getUsername(), trainingEntity.getRepeatPerDay(), moveInstanceService.getMove(moveSet.getMovesetId()));
+            training training = new training(trainingEntity.getTrainingId(), trainingEntity.getName(), trainingEntity.getDayofweek(), trainingEntity.getStarttime(), trainingEntity.getEndtime(), userService.queryByUserId(trainingEntity.getDocUserId()).getUsername(), trainingEntity.getRepeatPerDay(), moveInstanceService.getMove(moveSet.getMovesetId()));
             trainingList.add(training);
         }
         return trainingList;
