@@ -29,6 +29,11 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
 	private TokenService tokenService;
 
 	@Override
+	public UserEntity queryByUserId(Long userId){
+		return baseMapper.selectOne(new QueryWrapper<UserEntity>().eq("user_id", userId));
+	}
+
+	@Override
 	public UserEntity queryByUsername(String username) {
 		return baseMapper.selectOne(new QueryWrapper<UserEntity>().eq("username", username));
 	}

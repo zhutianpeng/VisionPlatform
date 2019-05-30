@@ -19,4 +19,5 @@ public class MovetypeServiceImpl extends ServiceImpl<MovetypeDao, MovetypeEntity
     public MovetypeEntity getMovetype(Long movetypeId){
         return baseMapper.selectOne(new QueryWrapper<MovetypeEntity>().eq("movetype_id", movetypeId));
     }
+
 }

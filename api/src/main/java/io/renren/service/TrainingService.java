@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface TrainingService extends IService<TrainingEntity> {
 
-    List<TrainingEntity> getTraining(Long userId);
+    List getTraining(Long userId);
 
 }
