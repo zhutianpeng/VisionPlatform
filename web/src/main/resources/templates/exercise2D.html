@@ -107,8 +107,8 @@
                     <el-select v-model="trainingId" placeholder="选择用户训练计划">
                         <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
                     </el-select>
-                    <el-card class="box-card" v-for="item in training.moveInstanceList">
-                        <el-radio v-model="moveId" :label="item.moveinstanceId">{{item.movetypeName}}</el-radio>
+                    <el-card class="box-card" v-for="item in training.moveList">
+                        <el-radio v-model="moveId" :label="item.moveInstanceId">{{item.movetypeName}}</el-radio>
                         <img :src="item.moveImage" height="100%" width="100%">
                         <!--<div v-for="(value, key) in item" class="text item">-->
                             <!--{{key}} : {{value}}-->
@@ -119,10 +119,10 @@
             <div class="main-center">
                 <data-box :title="'动作参数展示区'" :dheight="300">
                     <el-card class="box-card">
-                        <img :src="move.motionImage" height="100%">
-                        <div v-for="item in move.motionInstanceList" class="text item">
-                            <div v-for="(value, key) in item" class="text item">
-                                {{key}} : {{value}}
+                        <div v-for="item in move.motionList">
+                            <img :src="item.motionImage" height="100%">
+                            <div class="text item">
+                                弯曲角度：{{item.rotateAngle}}
                             </div>
                         </div>
                     </el-card>
@@ -239,11 +239,12 @@
         },
         mounted: function(){
             
-            let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
-            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            let unityUrl = /*[[@{/webGL/Receiver2D/Build/Receiver2D.json}]]*/ 'Sebastian';
+            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.getTrainingPlan();
 
-            this.initCamera(); //初始化摄像头
+            // this.initCamera(); //初始化摄像头
+
             // this.initWebSocket(); //初始化WebSocket
 
 
@@ -255,25 +256,25 @@
                 })[0];
             },
             moveId: function(newVal) { //监听用户选择的动作
-                this.move = this.training.moveInstanceList.filter(function(item){
-                    return item.moveinstanceId === newVal;
+                this.move = this.training.moveList.filter(function(item){
+                    return item.moveInstanceId === newVal;
                 })[0];
             }
         },
         methods:{
             getTrainingPlan:function(){ //拉取该用户的所有训练计划
                 let _this = this;
-                let postUrl = /*[[@{/api/getTraining}]]*/ 'Sebastian';
+                let postUrl = /*[[@{/api/getTrainingFromJson}]]*/ 'Sebastian';
                 $.ajax({
                     url: postUrl,
                     dataType: 'json',
                     contentType : 'application/json',
                     data: JSON.stringify({
-                        userId: 4
+                        userId: 36
                     }),
                     type: 'POST',
                     success: function (data) {
-                        _this.trainingList = data.map;
+                        _this.trainingList = data.trainingList;
                     },
                     error: function () {
                         console.log("用户训练计划拉取失败！")

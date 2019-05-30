@@ -286,7 +286,7 @@
         },
         mounted: function(){
             this.initPage(); //页面组件初始化
-            let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/Receiver2D/Build/Receiver2D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
 
 

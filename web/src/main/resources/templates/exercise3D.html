@@ -176,8 +176,8 @@
             dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
-            let unityUrl = /*[[@{/webGL/Build/Receiver3D.json}]]*/ 'Sebastian';
-            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            let unityUrl = /*[[@{/webGL/Receiver3D/Build/Receiver3D.json}]]*/ 'Sebastian';
+            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             // this.initCamera(); //初始化摄像头
 
             // this.initWebSocket(); //初始化WebSocket
@@ -286,7 +286,7 @@
             startPlaying: function () { //数据准备完成后开始播放按钮回调函数
                 let poseData = sessionStorage.getItem("poseData");
                 let fps = sessionStorage.getItem("fps");
-                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData, fps); //调用Unity内部方法，将姿态数据传入
+                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData + "@" + fps); //调用Unity内部方法，将姿态数据传入
             },
             stopPlaying: function () { //停止播放
                 this.gameInstance.SendMessage("BoxUnityChan", "StopAction");
