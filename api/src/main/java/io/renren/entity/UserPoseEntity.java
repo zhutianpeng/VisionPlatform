@@ -9,15 +9,21 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Data
-@TableName("user_pose")
+@TableName("file_data")
 public class UserPoseEntity implements Serializable {
 
     @TableId(value = "id")
-    private String Id;
+    private Integer id;
 
     private String userToken;
 
-    private String pose;
+    private String filename;
+
+    private Integer task;
+
+    private String poseData;
+
+    private Integer fps;
 
     private Timestamp createTime;
 

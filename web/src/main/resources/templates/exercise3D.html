@@ -167,7 +167,7 @@
             chunks: [],
             stopDisabled: true, //停止录制按钮是否禁用，初始为禁用状态
             sendMsg:{
-                userToken:'fishhao123',
+                userToken:'123',
                 image:'',
                 task:1
             },
@@ -176,11 +176,12 @@
             dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
-            let unityUrl = /*[[@{/webGL/Build/Receiver2D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/Build/Receiver3D.json}]]*/ 'Sebastian';
             // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-            this.initCamera(); //初始化摄像头
+            // this.initCamera(); //初始化摄像头
 
-            this.initWebSocket(); //初始化WebSocket
+            // this.initWebSocket(); //初始化WebSocket
+            this.downloadData();
         },
         methods:{
             initCamera:function(){
@@ -215,18 +216,6 @@
                 //当视频数据准备完成时的回调函数
                 _this.mediaRecorder.ondataavailable = function(event) {
                     _this.chunks.push(event.data);
-
-
-                    // this.chunks.push(event.data);
-                    // let reader = new FileReader();
-                    // reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
-                    //     let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
-                    //     console.log(buf); //TODO 下载到本地
-                    //     if(reader.result.byteLength > 0){ //空数据不进行发送
-                    //         _this.socket.send(buf);
-                    //     }
-                    // });
-                    // reader.readAsArrayBuffer(event.data);
                 };
                 _this.mediaRecorder.onerror = function(e){
                     console.log('视频录制出错：' + e);
@@ -261,7 +250,7 @@
             },
             onMessage: function(event){
                 if(event.data === "File Available"){ //3D数据准备完成可以进行拉取
-                   // this.downLoadData();
+                   // this.downloadData();
                 }
             },
             onError: function(){
@@ -270,21 +259,24 @@
             onClose: function(){
                 console.log("WebSocket关闭！");
             },
-            downLoadData: function () { //从数据库中下载3D姿态数据
+            downloadData: function () { //从数据库中下载3D姿态数据
                 let _this = this;
-                let postUrl = '/getUserPose/' + _this.sendMsg.userToken;
+                let postUrl = /*[[@{/getUserPose/}]]*/ 'Sebastian'; //TODO thymeleaf字符串拼接
+                postUrl += _this.sendMsg.userToken;
                 //TODO 请求从数据库拉取姿态数据
                 $.ajax({
                     url: postUrl,
                     dataType:'json',
                     type:'POST',
                     success:function (data) {
-                        sessionStorage.setItem("userPose", data.userPose); //前端缓存姿态数据
+                        sessionStorage.setItem("poseData", data.userPose.poseData); //前端缓存姿态数据
+                        sessionStorage.setItem("fps", data.userPose.fps);
                         console.log("数据保存完成");
                         _this.$message({
                             message: '姿态数据已准备完成，可以开始播放',
                             type: 'success'
                         });
+                        _this.dataAvailable = true;
                     },
                     error:function () {
                         console.log("数据拉取失败")
@@ -292,8 +284,9 @@
                 });
             },
             startPlaying: function () { //数据准备完成后开始播放按钮回调函数
-                let poseData = sessionStorage.getItem("userPose");
-                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData.toString()); //调用Unity内部方法，将姿态数据传入
+                let poseData = sessionStorage.getItem("poseData");
+                let fps = sessionStorage.getItem("fps");
+                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData, fps); //调用Unity内部方法，将姿态数据传入
             },
             stopPlaying: function () { //停止播放
                 this.gameInstance.SendMessage("BoxUnityChan", "StopAction");

@@ -7,6 +7,7 @@ import io.renren.entity.UserPoseEntity;
 import io.renren.service.UserPoseService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service("userPoseService")
@@ -15,14 +16,14 @@ public class UserPoseServiceImpl extends ServiceImpl<UserPoseDao, UserPoseEntity
     @Override
     public void savePose(){
         UserPoseEntity userPoseEntity = new UserPoseEntity();
-        userPoseEntity.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         String pose = "pose example";
-        userPoseEntity.setPose(pose);
+        userPoseEntity.setPoseData(pose);
         this.saveOrUpdate(userPoseEntity);
     }
 
     @Override
     public UserPoseEntity queryPose(String userToken){
-        return baseMapper.selectOne(new QueryWrapper<UserPoseEntity>().eq("userToken", userToken));
+        List<UserPoseEntity> userPoseList = baseMapper.selectList(new QueryWrapper<UserPoseEntity>().eq("user_token", userToken));
+        return userPoseList.get(userPoseList.size() - 1); //获取最新的一组数据
     }
 }
