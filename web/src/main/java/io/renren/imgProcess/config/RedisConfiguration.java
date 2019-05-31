@@ -61,7 +61,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        //订阅通道,container 可以添加多个 messageListener
+        //订阅通道，container 可以添加多个 messageListener
         container.addMessageListener(redisListenerAdapter, new PatternTopic("yanchuangChannel"));
         container.addMessageListener(fileListenerAdapter,new PatternTopic("resultChannel"));
         return container;

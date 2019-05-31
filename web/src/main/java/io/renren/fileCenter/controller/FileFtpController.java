@@ -32,8 +32,9 @@ public class FileFtpController {
     private User user;
 
     @ApiOperation("上传")
-    @RequestMapping(value = "/ftpUpload", method = RequestMethod.POST ,consumes = "multipart/form-data")
-    public boolean uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile)
+    @RequestMapping(value = "/ftpUpload", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public boolean uploadFile(@RequestParam(name = "fileName") MultipartFile multipartFile,
+                              @RequestParam(name = "userToken") String userToken)
     {
         boolean flag = false;
         //指定存放上传文件的目录
@@ -51,7 +52,8 @@ public class FileFtpController {
         String filePath = user.getBasepath() +'/'+ fileName;
 
         HashMap<String,String> fileData = new HashMap<String, String>();
-        fileData.put("filePath",filePath);
+        fileData.put("filePath", filePath);
+        fileData.put("userToken", userToken);
         JSONObject jsonObject = JSONObject.fromObject(fileData);
 
         File file = new File(dir, fileName);

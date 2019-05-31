@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * Created by AndrewKing on 10/14/2018.
- * redis 监听
+ * 监听Redis，将处理完成后的姿态数据放到ActiveMQ中
  */
 @Service
 public class RedisMessageListener implements MessageListener {
@@ -36,35 +36,35 @@ public class RedisMessageListener implements MessageListener {
         String imageID = json.getString("imageID");
 
         Jedis jedis = jedisPool.getResource();
-        String imageContent = jedis.hget(imageID,"image"); //  原图
-        String userToken = jedis.hget(imageID,"userToken");//  user
+        String imageContent = jedis.hget(imageID, "image"); //  原图
+        String userToken = jedis.hget(imageID, "userToken");//  user
 
 //        output
         String imageResult = imageContent;
 
 //        pose
-        String poseResultString = jedis.hget(imageID,"poseResult");
+        String poseResultString = jedis.hget(imageID, "poseResult");
         if(StringUtils.isNotBlank(poseResultString)){
-            imageResult = PoseUtils.drawHumans(poseResultString,imageContent);
+            imageResult = PoseUtils.drawHumans(poseResultString, imageContent);
         }
 
 //        face
-        String faceResultString = jedis.hget(imageID,"faceResult");
+        String faceResultString = jedis.hget(imageID, "faceResult");
         if(StringUtils.isNotBlank(faceResultString)){
-            imageResult = FaceUtils.drawFaces(faceResultString,imageResult);
+            imageResult = FaceUtils.drawFaces(faceResultString, imageResult);
         }
 
         String poseResultParsed=null;
 //        get pose result ArrayList
         if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
-            poseResultParsed = PoseUtils.getPoseData(poseResultString,imageContent);
+            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent);
         }
 
         Map<String,String> result = new HashMap<String, String>();
-        result.put("image",imageResult);
+        result.put("image", imageResult);
 
         if(StringUtils.isNotBlank(poseResultParsed)){
-            result.put("poseResultParsed",poseResultParsed);
+            result.put("poseResultParsed", poseResultParsed);
         }
 
         JSONObject output = JSONObject.fromObject(result);
@@ -77,7 +77,7 @@ public class RedisMessageListener implements MessageListener {
 //       activeMQ send for video and poseResultParsed
         ActiveMQQueue destination = new ActiveMQQueue("/user/"+ userToken +"/video");
 
-        producerService.sendMessage(destination,output.toString());
+        producerService.sendMessage(destination, output.toString());
 //
     }
 }

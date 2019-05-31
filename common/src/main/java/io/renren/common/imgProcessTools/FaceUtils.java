@@ -30,7 +30,7 @@ public class FaceUtils {
                 int bottom = facelocation.getInt(2)*4;
                 int left = facelocation.getInt(3)*4;
 
-                Core.rectangle(image,new Point(left,top),new Point(right,bottom), new Scalar(0,0,255),2);
+                Core.rectangle(image,new Point(left, top),new Point(right, bottom), new Scalar(0,0,255),2);
                 Core.rectangle(image,new Point(left, bottom - 35),new Point(right, bottom), new Scalar(0,255,255));
                 Core.putText(image,faceName,new Point(left + 6, bottom - 6), Core.FONT_ITALIC,1.0, new Scalar(255,255,255),1);
             }

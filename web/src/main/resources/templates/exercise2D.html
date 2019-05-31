@@ -136,6 +136,7 @@
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'动作指导视频'" :dheight="400" :boxb="false">
+                        <el-button type="success" @click="changeTrans">开始传输</el-button>
                     </data-box>
                     <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
                         <video style="width: 100%; height: 100%" autoplay></video>
@@ -173,7 +174,7 @@
         "12": 2,
         "13": 16
     };
-    // var client = Stomp.client(url); TODO 暂时关闭
+    var client = Stomp.client(url); //TODO 暂时关闭
 
     var stompOnMessage = function (message) {
         let jsonData = JSON.parse(message.body); //接收数据JSON示例：{'image':'', 'poseResultParsed':''}
@@ -212,10 +213,10 @@
         console.log("Stomp连接出错！" + error);
     };
 
-    // // the client is notified when it is connected to the server. TODO 暂时关闭
-    // client.connect(login, passcode, function (frame) {
-    //     client.subscribe("/user/" + userToken + "/video", stompOnMessage);
-    // }, stompOnError);
+    // the client is notified when it is connected to the server. TODO 暂时关闭
+    client.connect(login, passcode, function (frame) {
+        client.subscribe("/user/" + userToken + "/video", stompOnMessage);
+    }, stompOnError);
 
 
     var exercise2D = new Vue({
@@ -243,7 +244,7 @@
             // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.getTrainingPlan();
 
-            // this.initCamera(); //初始化摄像头
+            this.initCamera(); //初始化摄像头
 
             // this.initWebSocket(); //初始化WebSocket
 
@@ -354,16 +355,17 @@
             },
             changeTrans:function () { //按钮调用，用于启动图像传输
                 let _this = this;
-                _this.button2.enable = !_this.button2.enable;
-                if(_this.button2.enable){
-                    _this.button2.buttonType = 'danger';
-                    _this.myTimer = setInterval(function(){
-                        _this.transImage(document.querySelector('video'));
-                    }, 100); //50ms发送一次
-                } else {
-                    clearInterval(_this.myTimer);
-                    _this.button2.buttonType = 'success';
-                }
+                // _this.button2.enable = !_this.button2.enable;
+                client.send(destination, {moveId: 22}, '22');
+                // if(_this.button2.enable){
+                //     _this.button2.buttonType = 'danger';
+                //     _this.myTimer = setInterval(function(){
+                //         _this.transImage(document.querySelector('video'));
+                //     }, 100); //50ms发送一次
+                // } else {
+                //     clearInterval(_this.myTimer);
+                //     _this.button2.buttonType = 'success';
+                // }
             },
         },
         components:{

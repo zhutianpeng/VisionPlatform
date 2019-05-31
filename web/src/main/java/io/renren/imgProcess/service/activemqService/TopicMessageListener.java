@@ -6,9 +6,9 @@ import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 /*
-ztp:一对多   TopicConsumer
+ztp:一对多   TopicMessageListener
 */
-public class TopicConsumer implements MessageListener {
+public class TopicMessageListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {

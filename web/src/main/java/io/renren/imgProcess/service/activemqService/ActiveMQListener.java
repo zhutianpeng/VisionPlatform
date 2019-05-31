@@ -2,6 +2,8 @@ package io.renren.imgProcess.service.activemqService;
 
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -12,22 +14,23 @@ import java.util.UUID;
 
 /**
  * @author AndrewKing
- * activemq 监听
+ * 监听ActiveMQ
  */
-public class ActivamqMessageListener implements MessageListener {
+@Service
+public class ActiveMQListener {
+
     @Autowired
     private JedisPool jedisPool;
-//    @Autowired
-//    private RedisTemplate jedisTemplate;
 
-    @Override
+    @JmsListener(destination = "video", containerFactory = "queueListenerFactory")
     public void onMessage(Message message) {
 //      此处用于测试
+        System.out.println(message);
         if(message instanceof TextMessage){
             TextMessage textMsg = (TextMessage) message;
-            System.out.println("接收到一个纯文本消息。");
+            System.out.println("接收到一个纯文本消息");
             try {
-                System.out.println("ztp消息内容是：" + textMsg.getText());
+                System.out.println("消息内容是：" + textMsg.getText());
             } catch (JMSException e) {
                 e.printStackTrace();
             }
@@ -49,15 +52,14 @@ public class ActivamqMessageListener implements MessageListener {
                     image_base64 = new String(buffer,0,len);
                 }
 
-//                System.out.println("imageID: "+imageID +",user-token: "+user_token+" ,task: "+task+", image_base64: "+ image_base64);
                 Jedis jedis = jedisPool.getResource();
 
 
                 Map<String,String> imageData = new HashMap<String, String>();
-                imageData.put("imageID",imageID);
-                imageData.put("userToken",user_token);
-                imageData.put("taskList",task);
-                imageData.put("image",image_base64);
+                imageData.put("imageID", imageID);
+                imageData.put("userToken", user_token);
+                imageData.put("taskList", task);
+                imageData.put("image", image_base64);
 
                 JSONObject jsonObject = JSONObject.fromObject(imageData);
 
@@ -66,7 +68,6 @@ public class ActivamqMessageListener implements MessageListener {
                 int taskToDo = Integer.parseInt(task);
                 if((taskToDo&0x01)>0) { //pose
                     jedis.rpush("image_queue_to_pose_estimation", jsonObject.toString());
-//                    jedisTemplate.convertAndSend("test_channel",jsonObject);
                 }
                 if((taskToDo&0x02)>0){ //face
                     jedis.rpush("image_queue_to_face_recognition", jsonObject.toString());

@@ -108,6 +108,7 @@
                         <div style="padding: 10%">
                             <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data" id="videoSubmit" onsubmit="return submitVideo()">
                                 <p><input type="file" name="fileName"/></p>
+                                <p hidden><input type="text" name="userToken" :value="sendMsg.userToken"/></p>
                                 <p><input type="submit" value="上传文件"/></p>
                             </form>
                             <el-button type="success" v-if="dataAvailable" @click="startPlaying">开始播放</el-button>
@@ -178,10 +179,9 @@
         mounted: function(){
             let unityUrl = /*[[@{/webGL/Receiver3D/Build/Receiver3D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-            // this.initCamera(); //初始化摄像头
+            this.initCamera(); //初始化摄像头
 
-            // this.initWebSocket(); //初始化WebSocket
-            this.downloadData();
+            this.initWebSocket(); //初始化WebSocket
         },
         methods:{
             initCamera:function(){
@@ -197,7 +197,6 @@
             },
             initRecorder: function(stream){
                 let _this = this;
-                let options;
                 if (typeof MediaRecorder.isTypeSupported === 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
                     if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
                         options = {mimeType: 'video/webm;codecs=vp9'};
@@ -212,7 +211,6 @@
                     console.log('isTypeSupported is not supported, using default codecs for browser');
                     _this.mediaRecorder = new MediaRecorder(stream);
                 }
-
                 //当视频数据准备完成时的回调函数
                 _this.mediaRecorder.ondataavailable = function(event) {
                     _this.chunks.push(event.data);
@@ -250,7 +248,7 @@
             },
             onMessage: function(event){
                 if(event.data === "File Available"){ //3D数据准备完成可以进行拉取
-                   // this.downloadData();
+                   this.downloadData();
                 }
             },
             onError: function(){
@@ -261,9 +259,8 @@
             },
             downloadData: function () { //从数据库中下载3D姿态数据
                 let _this = this;
-                let postUrl = /*[[@{/getUserPose/}]]*/ 'Sebastian'; //TODO thymeleaf字符串拼接
+                let postUrl = /*[[@{/getUserPose/}]]*/ 'Sebastian';
                 postUrl += _this.sendMsg.userToken;
-                //TODO 请求从数据库拉取姿态数据
                 $.ajax({
                     url: postUrl,
                     dataType:'json',
