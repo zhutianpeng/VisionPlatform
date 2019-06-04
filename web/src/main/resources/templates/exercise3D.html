@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
     <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script><!--jquery表单提交-->
-    <script th:src="@{/webGL/TemplateData/UnityProgress.js}"></script>
-    <script th:src="@{/webGL/Build/UnityLoader.js}"></script>
-    <link rel="stylesheet" th:href="@{/webGL/TemplateData/style.css}">
+    <script th:src="@{/webGL/Receiver3D/TemplateData/UnityProgress.js}"></script>
+    <script th:src="@{/webGL/Receiver3D/Build/UnityLoader.js}"></script>
+    <link rel="stylesheet" th:href="@{/webGL/Receiver3D/TemplateData/style.css}">
 
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
     <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
@@ -180,7 +180,7 @@
             let unityUrl = /*[[@{/webGL/Receiver3D/Build/Receiver3D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
-
+            this.downloadData(); //拉取姿态数据（测试用）
             this.initWebSocket(); //初始化WebSocket
         },
         methods:{

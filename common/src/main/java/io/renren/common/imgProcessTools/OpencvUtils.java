@@ -49,7 +49,7 @@ public class OpencvUtils {
                         ))
                 /Math.PI);
         //      pi   = 180
-        //      x    =  ？
+        //      x    =  ?
         //====> ?=180*x/pi
         return result;
     }
