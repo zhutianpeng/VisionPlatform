@@ -227,7 +227,7 @@
             poseData:{}
         },
         mounted: function(){
-            this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2Dv5.json", {onProgress: UnityProgress});
+            this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Loader/Receiver2Dv5.json", {onProgress: UnityProgress});
 
             this.initCamera(); //初始化摄像头
             // this.initWebSocket(); //初始化WebSocket

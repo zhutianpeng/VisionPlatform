@@ -1296,7 +1296,7 @@ window.Docs = {
                 array_push.call(boundArgs, '$' + i);
             }
 
-            // XXX Build a dynamic function with desired amount of arguments is the only
+            // XXX Loader a dynamic function with desired amount of arguments is the only
             // way to set the length property of a function.
             // In environments where Content Security Policies enabled (Chrome extensions,
             // for ex.) all use of eval or Function costructor throws an exception.

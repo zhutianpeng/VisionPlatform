@@ -19,6 +19,7 @@ import java.util.Set;
 public class PoseUtils {
 
     static{
+//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         String path = OpencvUtils.dllPath;
         System.load(path);
     }

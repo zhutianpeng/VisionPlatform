@@ -11,7 +11,7 @@
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
     <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script><!--jquery表单提交-->
     <script th:src="@{/webGL/Receiver3D/TemplateData/UnityProgress.js}"></script>
-    <script th:src="@{/webGL/Receiver3D/Build/UnityLoader.js}"></script>
+    <script th:src="@{/webGL/Receiver3D/Loader/UnityLoader.js}"></script>
     <link rel="stylesheet" th:href="@{/webGL/Receiver3D/TemplateData/style.css}">
 
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
@@ -177,7 +177,7 @@
             dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
-            let unityUrl = /*[[@{/webGL/Receiver3D/Build/Receiver3D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/Receiver3D/Loader/Receiver3D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
             this.downloadData(); //拉取姿态数据（测试用）

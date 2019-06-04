@@ -302,7 +302,7 @@
         },
         mounted: function(){
             this.initPage(); //页面组件初始化
-            this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Build/Receiver2D.json", {onProgress: UnityProgress});
+            this.gameInstance = UnityLoader.instantiate("gameContainer", "${pageContext.request.contextPath}/webGL/Loader/Receiver2D.json", {onProgress: UnityProgress});
 
             this.initCamera(); //初始化摄像头
             // this.initWebSocket(); //初始化WebSocket

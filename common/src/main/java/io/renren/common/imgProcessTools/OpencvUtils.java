@@ -1,6 +1,7 @@
 package io.renren.common.imgProcessTools;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
@@ -9,6 +10,7 @@ import org.opencv.highgui.Highgui;
 public class OpencvUtils {
     public static final  String dllPath = "D:\\opencv\\build\\java\\x64\\opencv_java2413.dll";
     static{
+//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         System.load(dllPath);
     }
     public static Mat Base64ToMat(String s){

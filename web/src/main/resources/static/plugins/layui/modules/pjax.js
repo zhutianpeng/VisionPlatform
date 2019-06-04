@@ -613,7 +613,7 @@ layui.define(['jquery'], function(exports) {
 			return location.href.replace(/#.*/, '')
 		}
 
-		// Internal: Build options Object for arguments.
+		// Internal: Loader options Object for arguments.
 		//
 		// For convenience the first parameter can be either the container or
 		// the options object.

@@ -1,5 +1,6 @@
 package io.renren.common.imgProcessTools;
 
+import org.opencv.core.Core;
 import org.opencv.core.Scalar;
 
 import java.util.Arrays;
