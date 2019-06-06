@@ -23,6 +23,7 @@ import java.util.Map;
  */
 @Service
 public class RedisMessageListener implements MessageListener {
+
     @Autowired
     private ChannelTopic channelTopic;
     @Autowired
@@ -45,26 +46,26 @@ public class RedisMessageListener implements MessageListener {
 //        pose
         String poseResultString = jedis.hget(imageID, "poseResult");
         if(StringUtils.isNotBlank(poseResultString)){
-            imageResult = PoseUtils.drawHumans(poseResultString, imageContent);
+            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
         }
 
 //        face
         String faceResultString = jedis.hget(imageID, "faceResult");
         if(StringUtils.isNotBlank(faceResultString)){
-            imageResult = FaceUtils.drawFaces(faceResultString, imageResult);
+            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
         }
 
         String poseResultParsed=null;
 //        get pose result ArrayList
         if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
-            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent);
+            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
         }
 
-        Map<String,String> result = new HashMap<String, String>();
-        result.put("image", imageResult);
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("image", imageResult); //带分析结果的图片
 
         if(StringUtils.isNotBlank(poseResultParsed)){
-            result.put("poseResultParsed", poseResultParsed);
+            result.put("poseResultParsed", poseResultParsed); //姿态数据
         }
 
         JSONObject output = JSONObject.fromObject(result);
@@ -77,7 +78,7 @@ public class RedisMessageListener implements MessageListener {
 //       activeMQ send for video and poseResultParsed
         ActiveMQQueue destination = new ActiveMQQueue("/user/"+ userToken +"/video");
 
-        producerService.sendMessage(destination, output.toString());
+        producerService.sendMessage(destination, output.toString());  //发到ActiveMQ中
 //
     }
 }

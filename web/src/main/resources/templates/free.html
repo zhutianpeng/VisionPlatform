@@ -158,7 +158,7 @@
     destination = "/queue/video";
     login = "admin";
     passcode = "password";
-    userToken = "123";
+    userToken = "111";
 
     var pointMapping = { //关节点映射表，由于识别关节点和Unity关节点不同，因此需要进行转换
         "0": 10,
@@ -190,7 +190,7 @@
 
             let singleArray = [];
             for (let key in singlePerson) {
-                app.poseData[key] = singlePerson[key].confidence; //填充置信度信息
+                free.poseData[key] = singlePerson[key].confidence; //填充置信度信息
                 if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
                     singleArray.push(pointMapping[key]);
                     singleArray.push(200 - singlePerson[key].x);
@@ -199,7 +199,7 @@
             }
             if (singleArray) { //数据不为空
                 // console.log(singleArray.toString());
-                app.gameInstance.SendMessage("BoxUnityChan", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
+                free.gameInstance.SendMessage("BoxUnityChan", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
             }
         }
         if(jsonData.image){
