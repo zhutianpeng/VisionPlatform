@@ -87,4 +87,38 @@ public class ActiveMQListener {
         }
     }
 
+    @JmsListener(destination = "realTime", containerFactory = "queueListenerFactory")
+    public void realTimeOnMessage(Message message) {
+       if (message instanceof BytesMessage) {
+            BytesMessage bytesMessage = (BytesMessage)message;
+            try {
+                String userToken = String.valueOf(bytesMessage.getByteProperty("userToken"));  //用户Token
+                String base64Image ="";                                            //原始图像
+                UUID uuid= UUID.randomUUID();
+                String imageID = uuid.toString();                                   // imageID
+
+                byte[] buffer = new byte[1024*1024];
+                int len = 0;
+                while((len = bytesMessage.readBytes(buffer)) != -1){
+                    base64Image = new String(buffer,0, len);
+                }
+                Jedis jedis = jedisPool.getResource();
+
+                Map<String,String> imageData = new HashMap<String, String>();
+                imageData.put("imageID", imageID);
+                imageData.put("userToken", userToken);
+                imageData.put("image", base64Image);
+
+                JSONObject jsonObject = JSONObject.fromObject(imageData);
+                jedis.rpush("videoInput", jsonObject.toString()); //TODO
+
+                //手动释放资源，不然会因为jedisPool里面的maxActive=200的限制，只能创建200个jedis资源。
+                jedis.close();
+
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

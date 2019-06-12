@@ -155,44 +155,17 @@
 
     var url, destination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
-    destination = "/queue/video";
+    destination = "/queue/realTime";
     login = "admin";
     passcode = "password";
     userToken = "111";
 
-    var pointMapping = { //关节点映射表，由于识别关节点和Unity关节点不同，因此需要进行转换
-        14:0,
-        8:1,
-        9:2,
-        19:3,
-        11:4,
-        12:5,
-        20:6,
-        15:7,
-        1:8,
-        16:10,
-        5:11,
-        6:12,
-        7:13,
-        2:14,
-        3:15,
-        4:16
-    };
     var client = Stomp.client(url); //TODO 暂时关闭
 
     var stompOnMessage = function (message) {
-        let jsonData = JSON.parse(message.body);
-        let singleArray = [];
-        for (let key in jsonData) {
-            if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
-                singleArray.push(pointMapping[key]);
-                singleArray.push(jsonData[key].x);
-                singleArray.push(jsonData[key].y);
-                singleArray.push(jsonData[key].z);
-            }
-        }
+        console.log("接收到AMQ消息：" + message.body);
         if (message.body) { //数据不为空
-            free.gameInstance.SendMessage("BoxUnityChan", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
+            free.gameInstance.SendMessage("BoxUnityChan", "GetPose", message.body); //调用Unity内部方法，将姿态数据传入
         }
     };
 
@@ -273,14 +246,11 @@
         },
         mounted: function(){
             this.initPage(); //页面组件初始化
-            let unityUrl = /*[[@{/webGL/Receiver2D/Loader/Receiver2D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/Test3D/Build/Test3D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
 
 
-            this.initCamera(); //初始化摄像头
-            // this.initWebSocket(); //初始化WebSocket
-
-
+            // this.initCamera(); //初始化摄像头
         },
         watch:{
             chosenModule: function (newVal) {
@@ -304,19 +274,15 @@
                     .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
             },
             transImage: function (video) {
-//                console.log("进入transImage方法");
                 let _this = this;
                 let canvas = document.getElementById('targetCanvas');
 //                let scale = 1; //缩放比例
 //                canvas.width = video.videoWidth * scale;
 //                canvas.height = video.videoHeight * scale;
-                canvas.getContext('2d').drawImage(video, 0, 0, 400,300);
+                canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(destination, {'user-token': userToken, 'task': 0x01}, image); //发送消息
-                    // _this.sendMsg.image = image; //填充base64编码后的视频帧
-                    // this.socket.send(JSON.stringify(_this.sendMsg)); //通过WebSocket发送到后台
-                    // console.log(image);
+                    client.send(destination, {'userToken': userToken}, image); //发送消息
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
@@ -329,40 +295,6 @@
                 }else{
                     this.button.buttonType = 'success';
                 }
-            },
-            initWebSocket: function () {
-                if(window.WebSocket){
-                    console.log("初始化WebSocket！");
-                    // this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/unityWebSocket');
-                    this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/webSocket/' + this.sendMsg.userToken); //123为用户ID
-                    this.socket.onopen = this.onOpen;
-                    this.socket.onmessage = this.onMessage;
-                    this.socket.onerror = this.onError;
-                    this.socket.onclose = this.onClose;
-                }else {
-                    console.log("不支持WebSocket！");
-                }
-            },
-            onOpen: function () {
-                let _this = this;
-                console.log("WebSocket连接成功!");
-                setInterval(function(){
-                    _this.transImage(document.querySelector('video'));
-                }, 50); //50ms发送一次
-                // this.socket.binaryType = "arraybuffer"; //设置发送消息类型
-                // this.socket.send("Hello!");
-            },
-            onMessage: function(event){
-                if(event.data){
-                    console.log("接收到来自后台的消息：" + event.data);
-                    gameInstance.SendMessage("BoxUnityChan", "GetPose", event.data); //调用Unity内部方法，将姿态数据传入
-                }
-            },
-            onError: function(){
-                console.log("WebSocket连接发生错误！");
-            },
-            onClose: function(){
-                console.log("WebSocket关闭！");
             },
             changeTrans:function () { //按钮调用，用于启动图像传输
                 let _this = this;
