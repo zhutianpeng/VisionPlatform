@@ -23,9 +23,7 @@ public class ActiveMQListener {
     private JedisPool jedisPool;
 
     @JmsListener(destination = "video", containerFactory = "queueListenerFactory")
-    public void onMessage(Message message) {
-//      此处用于测试
-        System.out.println(message);
+    public void videoOnMessage(Message message) {
         if(message instanceof TextMessage){
             TextMessage textMsg = (TextMessage) message;
             System.out.println("接收到一个纯文本消息");
@@ -40,16 +38,18 @@ public class ActiveMQListener {
             try {
                 // 得到一些参数：
 
-                String user_token = String.valueOf(bytesMessage.getByteProperty("user-token"));  // user-token
-                String task = String.valueOf(bytesMessage.getByteProperty("task"));               // task
-                String image_base64 ="";                                            // origin image
+                String userToken = String.valueOf(bytesMessage.getByteProperty("user-token"));  //用户Token
+                String task = String.valueOf(bytesMessage.getByteProperty("task"));               //执行的哪一个Task
+                String currentTime = String.valueOf(bytesMessage.getLongProperty("time")); //当前时间
+                String moveId = String.valueOf(bytesMessage.getIntProperty("moveId"));
+                String base64Image ="";                                            //原始图像
                 UUID uuid= UUID.randomUUID();
                 String imageID = uuid.toString();                                   // imageID
 
                 byte[] buffer = new byte[1024*1024];
                 int len = 0;
-                while((len=bytesMessage.readBytes(buffer))!=-1){
-                    image_base64 = new String(buffer,0,len);
+                while((len = bytesMessage.readBytes(buffer)) != -1){
+                    base64Image = new String(buffer,0, len);
                 }
 
                 Jedis jedis = jedisPool.getResource();
@@ -57,9 +57,11 @@ public class ActiveMQListener {
 
                 Map<String,String> imageData = new HashMap<String, String>();
                 imageData.put("imageID", imageID);
-                imageData.put("userToken", user_token);
+                imageData.put("userToken", userToken);
                 imageData.put("taskList", task);
-                imageData.put("image", image_base64);
+                imageData.put("currentTime", currentTime);
+                imageData.put("moveId", moveId);
+                imageData.put("image", base64Image);
 
                 JSONObject jsonObject = JSONObject.fromObject(imageData);
 

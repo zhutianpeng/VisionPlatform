@@ -25,9 +25,8 @@ import java.util.Map;
 public class RedisMessageListener implements MessageListener {
 
     @Autowired
-    private ChannelTopic channelTopic;
-    @Autowired
     private JedisPool jedisPool;
+
     @Autowired
     private ProducerService producerService;
 

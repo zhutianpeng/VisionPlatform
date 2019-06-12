@@ -1,6 +1,7 @@
 package io.renren.imgProcess.config;
 
 import io.renren.imgProcess.service.redisService.FileMessageListener;
+import io.renren.imgProcess.service.redisService.Pose3DMessageListener;
 import io.renren.imgProcess.service.redisService.RedisMessageListener;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,25 +58,34 @@ public class RedisConfiguration extends CachingConfigurerSupport {
 
     @Bean
     RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-             MessageListenerAdapter redisListenerAdapter, MessageListenerAdapter fileListenerAdapter) {
+             MessageListenerAdapter redisListenerAdapter,
+             MessageListenerAdapter fileListenerAdapter,
+             MessageListenerAdapter pose3DListenerAdapter) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         //订阅通道，container 可以添加多个 messageListener
         container.addMessageListener(redisListenerAdapter, new PatternTopic("yanchuangChannel"));
-        container.addMessageListener(fileListenerAdapter,new PatternTopic("resultChannel"));
+        container.addMessageListener(pose3DListenerAdapter, new PatternTopic("resultChannel"));
+//        container.addMessageListener(fileListenerAdapter, new PatternTopic("resultChannel"));
+
         return container;
     }
 
-    @Bean()
+    @Bean
     MessageListenerAdapter redisListenerAdapter(RedisMessageListener redisMessageListener){
         //这个地方 是给messageListenerAdapter 传入一个消息接受的处理器，利用反射的方法调用“receiveMessage”
         //也有好几个重载方法，这边默认调用处理器的方法 叫handleMessage 可以自己到源码里面看
         return new MessageListenerAdapter(redisMessageListener, "onMessage");
     }
 
-    @Bean()
+    @Bean
     MessageListenerAdapter fileListenerAdapter(FileMessageListener fileMessageListener){
         return new MessageListenerAdapter(fileMessageListener, "onMessage");
+    }
+
+    @Bean
+    MessageListenerAdapter pose3DListenerAdapter(Pose3DMessageListener pose3DMessageListener){
+        return new MessageListenerAdapter(pose3DMessageListener, "onMessage");
     }
 }

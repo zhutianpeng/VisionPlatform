@@ -136,7 +136,7 @@
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'动作指导视频'" :dheight="400" :boxb="false">
-                        <el-button type="success" @click="changeTrans">开始传输</el-button>
+                        <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">结束训练</span><span v-if="!button2.enable">开始训练</span></el-button>
                     </data-box>
                     <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
                         <video style="width: 100%; height: 100%" autoplay></video>
@@ -151,9 +151,9 @@
 
 <script type="text/javascript" th:inline="javascript">
 
-    var destination, login, passcode, userToken;
+    var videoDestination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
-    destination = "/queue/video";
+    videoDestination = "/queue/video";
     login = "admin";
     passcode = "password";
     userToken = "123";
@@ -234,9 +234,11 @@
             trainingId:'', //用户选择的训练计划ID
             training:{}, //用户选择的训练计划
             moveId:'', //用户选择的动作ID
-            move:{} //用户选择的动作
-
-
+            move:{}, //用户选择的动作
+            button2:{ //开始（停止）训练按钮
+                enable:false,
+                buttonType:'success',
+            },
         },
         mounted: function(){
             
@@ -269,7 +271,6 @@
                 $.ajax({
                     url: postUrl,
                     dataType: 'json',
-                    contentType : 'application/json',
                     data: JSON.stringify({
                         userId: 36
                     }),
@@ -293,19 +294,15 @@
                     .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
             },
             transImage: function (video) {
-//                console.log("进入transImage方法");
                 let _this = this;
                 let canvas = document.getElementById('targetCanvas');
 //                let scale = 1; //缩放比例
 //                canvas.width = video.videoWidth * scale;
 //                canvas.height = video.videoHeight * scale;
-                canvas.getContext('2d').drawImage(video, 0, 0, 400,300);
+                canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(destination, {'user-token': userToken, 'task': 0x01}, image); //发送消息
-                    // _this.sendMsg.image = image; //填充base64编码后的视频帧
-                    // this.socket.send(JSON.stringify(_this.sendMsg)); //通过WebSocket发送到后台
-                    // console.log(image);
+                    client.send(videoDestination, {'user-token': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
@@ -319,53 +316,18 @@
                     this.button.buttonType = 'success';
                 }
             },
-            initWebSocket: function () {
-                if(window.WebSocket){
-                    console.log("初始化WebSocket！");
-                    // this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/unityWebSocket');
-                    this.socket = new WebSocket('ws://localhost:8080/PoseEstimation/webSocket/' + this.sendMsg.userToken); //123为用户ID
-                    this.socket.onopen = this.onOpen;
-                    this.socket.onmessage = this.onMessage;
-                    this.socket.onerror = this.onError;
-                    this.socket.onclose = this.onClose;
-                }else {
-                    console.log("不支持WebSocket！");
-                }
-            },
-            onOpen: function () {
-                let _this = this;
-                console.log("WebSocket连接成功!");
-                setInterval(function(){
-                    _this.transImage(document.querySelector('video'));
-                }, 50); //50ms发送一次
-                // this.socket.binaryType = "arraybuffer"; //设置发送消息类型
-                // this.socket.send("Hello!");
-            },
-            onMessage: function(event){
-                if(event.data){
-                    console.log("接收到来自后台的消息：" + event.data);
-                    gameInstance.SendMessage("Philip", "GetPose", event.data); //调用Unity内部方法，将姿态数据传入
-                }
-            },
-            onError: function(){
-                console.log("WebSocket连接发生错误！");
-            },
-            onClose: function(){
-                console.log("WebSocket关闭！");
-            },
             changeTrans:function () { //按钮调用，用于启动图像传输
                 let _this = this;
-                // _this.button2.enable = !_this.button2.enable;
-                client.send(destination, {moveId: 22}, '22');
-                // if(_this.button2.enable){
-                //     _this.button2.buttonType = 'danger';
-                //     _this.myTimer = setInterval(function(){
-                //         _this.transImage(document.querySelector('video'));
-                //     }, 100); //50ms发送一次
-                // } else {
-                //     clearInterval(_this.myTimer);
-                //     _this.button2.buttonType = 'success';
-                // }
+                _this.button2.enable = !_this.button2.enable;
+                if(_this.button2.enable){
+                    _this.button2.buttonType = 'danger';
+                    _this.myTimer = setInterval(function(){
+                        _this.transImage(document.querySelector('video'));
+                    }, 100); //100ms发送一次
+                } else {
+                    clearInterval(_this.myTimer);
+                    _this.button2.buttonType = 'success';
+                }
             },
         },
         components:{

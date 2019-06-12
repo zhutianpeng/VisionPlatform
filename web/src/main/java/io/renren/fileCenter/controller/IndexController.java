@@ -24,4 +24,10 @@ public class IndexController {
     public String realTime2D(){
         return "exercise2D";
     }
+
+    @RequestMapping("/test")
+    public String test3D(){
+        return "test3D";
+    }
+
 }

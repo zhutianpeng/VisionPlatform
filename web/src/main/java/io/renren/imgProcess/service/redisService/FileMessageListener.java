@@ -13,9 +13,6 @@ import java.io.IOException;
 @Service
 public class FileMessageListener implements MessageListener {
 
-    @Autowired
-    private FileService fileService;
-
     @Override
     public void onMessage(Message message, byte[] pattern) {
         JSONObject result = JSONObject.parseObject(message.toString());
