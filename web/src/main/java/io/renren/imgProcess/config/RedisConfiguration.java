@@ -1,5 +1,6 @@
 package io.renren.imgProcess.config;
 
+import io.renren.common.config.RedisConfig;
 import io.renren.imgProcess.service.redisService.FileMessageListener;
 import io.renren.imgProcess.service.redisService.Pose3DMessageListener;
 import io.renren.imgProcess.service.redisService.RedisMessageListener;
@@ -10,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -66,12 +69,16 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         container.setConnectionFactory(connectionFactory);
         //订阅通道，container 可以添加多个 messageListener
         container.addMessageListener(redisListenerAdapter, new PatternTopic("yanchuangChannel"));
-        container.addMessageListener(pose3DListenerAdapter, new PatternTopic("resultChannel"));
-//        container.addMessageListener(fileListenerAdapter, new PatternTopic("resultChannel"));
-
+        container.addMessageListener(fileListenerAdapter, new PatternTopic("resultChannel"));
+        container.addMessageListener(pose3DListenerAdapter, new PatternTopic("outputChannel"));
         return container;
     }
 
+    @Bean
+    StringRedisTemplate template(RedisConnectionFactory connectionFactory){
+        return new StringRedisTemplate(connectionFactory);
+    }
+    
     @Bean
     MessageListenerAdapter redisListenerAdapter(RedisMessageListener redisMessageListener){
         //这个地方 是给messageListenerAdapter 传入一个消息接受的处理器，利用反射的方法调用“receiveMessage”

@@ -2,6 +2,7 @@ package io.renren.imgProcess.service.activemqService;
 
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -21,6 +22,9 @@ public class ActiveMQListener {
 
     @Autowired
     private JedisPool jedisPool;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @JmsListener(destination = "video", containerFactory = "queueListenerFactory")
     public void videoOnMessage(Message message) {
@@ -110,7 +114,7 @@ public class ActiveMQListener {
                 imageData.put("image", base64Image);
 
                 JSONObject jsonObject = JSONObject.fromObject(imageData);
-                jedis.rpush("videoInput", jsonObject.toString()); //TODO
+                stringRedisTemplate.convertAndSend("inputChannel", jsonObject.toString());
 
                 //手动释放资源，不然会因为jedisPool里面的maxActive=200的限制，只能创建200个jedis资源。
                 jedis.close();
