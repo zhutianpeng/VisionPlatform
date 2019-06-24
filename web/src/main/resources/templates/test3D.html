@@ -93,7 +93,7 @@
     <div class="header">
         <div class="bg-header">
             <div class="t-title">Pose Estimation</div>
-            <div class="t-title">测试页面</div>
+            <div class="t-title">实时3D姿态估计</div>
         </div>
     </div>
     <div class="data-content">
@@ -106,9 +106,6 @@
                     <div>
                         <div id="gameContainer" style="width: 100%; height: 100%"></div>
                     </div>
-                </data-box>
-                <data-box :title="'分区介绍'" :dheight="290" :icon="'account'">
-                    <img id="targetImg" style="height: 100%; width: 50%;"/>
                 </data-box>
             </div>
             <div class="main-right">
@@ -160,12 +157,11 @@
     passcode = "password";
     userToken = "111";
 
-    var client = Stomp.client(url); //TODO 暂时关闭
+    var client = Stomp.client(url);
 
     var stompOnMessage = function (message) {
-        console.log("接收到AMQ消息：" + message.body);
         if (message.body) { //数据不为空
-            free.gameInstance.SendMessage("BoxUnityChan", "GetPose", message.body); //调用Unity内部方法，将姿态数据传入
+            free.gameInstance.SendMessage("unitychan", "GetPose", message.body); //调用Unity内部方法，将姿态数据传入
         }
     };
 
@@ -174,7 +170,7 @@
         console.log("Stomp连接出错！" + error);
     };
 
-    // the client is notified when it is connected to the server. TODO 暂时关闭
+    // the client is notified when it is connected to the server.
     client.connect(login, passcode, function (frame) {
         client.subscribe("/user/" + userToken + "/video", stompOnMessage);
     }, stompOnError);
@@ -232,11 +228,6 @@
                 'dance': Dance,
                 'exercise': Exercise
             },
-            sendMsg:{
-                userToken:'123',
-                image:'',
-                task:1
-            },
             myTimer:'', //定时器
             poseData:{
                 1:'',
@@ -246,11 +237,9 @@
         },
         mounted: function(){
             this.initPage(); //页面组件初始化
-            let unityUrl = /*[[@{/webGL/Test3D/Loader/Test3D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/UnityChan/Loader/UnityChan.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-
-
-            // this.initCamera(); //初始化摄像头
+            this.initCamera(); //初始化摄像头
         },
         watch:{
             chosenModule: function (newVal) {
@@ -259,7 +248,7 @@
         },
         methods:{
             initPage:function(){ //页面初始化
-                this.chosenCharacter = this.characterOptions[0].value; //初始选择男性角色
+                this.chosenCharacter = this.characterOptions[1].value; //初始选择女性角色
                 this.chosenScene = this.sceneOptions[0].value; //初始选择户外场景
                 this.chosenModule = this.moduleOptions[1].value; //初始选择功能分区
             },
@@ -286,7 +275,7 @@
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
-                // this.gameInstance.SendMessage("Philip", "ChangeState");
+                this.gameInstance.SendMessage("unitychan", "ChangeState");
                 console.log("脚本状态改变！");
                 this.button.enable = !this.button.enable;
                 if(this.button.enable){

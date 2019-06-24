@@ -180,7 +180,7 @@
             let unityUrl = /*[[@{/webGL/Receiver3D/Loader/Receiver3D.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
-            this.downloadData(); //拉取姿态数据（测试用）
+            // this.downloadData(); //拉取姿态数据（测试用）
             this.initWebSocket(); //初始化WebSocket
         },
         methods:{

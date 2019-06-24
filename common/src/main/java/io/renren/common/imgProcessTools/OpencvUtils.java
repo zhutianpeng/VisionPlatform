@@ -16,7 +16,7 @@ public class OpencvUtils {
     public static Mat Base64ToMat(String s){
 //      base64转mat，with 'data:image/jpeg;base64,' this head
         byte[] data = Base64.decode(s.split(",")[1]);
-        Mat image = Highgui.imdecode(new MatOfByte(data), Highgui.CV_LOAD_IMAGE_UNCHANGED);
+        Mat image = Highgui.imdecode(new MatOfByte(data), Highgui.CV_LOAD_IMAGE_UNCHANGED); //TODO
         return image;
     }
 

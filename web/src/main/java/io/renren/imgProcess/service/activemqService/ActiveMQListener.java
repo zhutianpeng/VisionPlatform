@@ -44,8 +44,8 @@ public class ActiveMQListener {
 
                 String userToken = String.valueOf(bytesMessage.getByteProperty("user-token"));  //用户Token
                 String task = String.valueOf(bytesMessage.getByteProperty("task"));               //执行的哪一个Task
-                String currentTime = String.valueOf(bytesMessage.getLongProperty("time")); //当前时间
-                String moveId = String.valueOf(bytesMessage.getIntProperty("moveId"));
+//                String currentTime = String.valueOf(bytesMessage.getLongProperty("time")); //当前时间
+//                String moveId = String.valueOf(bytesMessage.getIntProperty("moveId"));
                 String base64Image ="";                                            //原始图像
                 UUID uuid= UUID.randomUUID();
                 String imageID = uuid.toString();                                   // imageID
@@ -63,8 +63,8 @@ public class ActiveMQListener {
                 imageData.put("imageID", imageID);
                 imageData.put("userToken", userToken);
                 imageData.put("taskList", task);
-                imageData.put("currentTime", currentTime);
-                imageData.put("moveId", moveId);
+//                imageData.put("currentTime", currentTime);
+//                imageData.put("moveId", moveId);
                 imageData.put("image", base64Image);
 
                 JSONObject jsonObject = JSONObject.fromObject(imageData);

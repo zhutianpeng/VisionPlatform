@@ -42,17 +42,17 @@ public class RedisMessageListener implements MessageListener {
 //        output
         String imageResult = imageContent;
 
-//        pose
+////        pose
         String poseResultString = jedis.hget(imageID, "poseResult");
-        if(StringUtils.isNotBlank(poseResultString)){
-            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
-        }
-
-//        face
-        String faceResultString = jedis.hget(imageID, "faceResult");
-        if(StringUtils.isNotBlank(faceResultString)){
-            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
-        }
+//        if(StringUtils.isNotBlank(poseResultString)){
+//            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
+//        }
+//
+////        face
+//        String faceResultString = jedis.hget(imageID, "faceResult");
+//        if(StringUtils.isNotBlank(faceResultString)){
+//            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
+//        }
 
         String poseResultParsed=null;
 //        get pose result ArrayList
@@ -60,8 +60,14 @@ public class RedisMessageListener implements MessageListener {
             poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
         }
 
+//        存放结果的hashMap
         Map<String, String> result = new HashMap<String, String>();
-        result.put("image", imageResult); //带分析结果的图片
+        String moveStage = jedis.hget(imageID, "moveStage");
+        if(moveStage != null){
+            result.put("moveStage", moveStage);
+        }
+
+//        result.put("image", imageResult); //带分析结果的图片
 
         if(StringUtils.isNotBlank(poseResultParsed)){
             result.put("poseResultParsed", poseResultParsed); //姿态数据
