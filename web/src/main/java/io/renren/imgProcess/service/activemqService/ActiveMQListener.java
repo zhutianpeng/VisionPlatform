@@ -42,7 +42,7 @@ public class ActiveMQListener {
             try {
                 // 得到一些参数：
 
-                String userToken = String.valueOf(bytesMessage.getByteProperty("user-token"));  //用户Token
+                String userToken = String.valueOf(bytesMessage.getByteProperty("userToken"));  //用户Token
                 String task = String.valueOf(bytesMessage.getByteProperty("task"));               //执行的哪一个Task
 //                String currentTime = String.valueOf(bytesMessage.getLongProperty("time")); //当前时间
 //                String moveId = String.valueOf(bytesMessage.getIntProperty("moveId"));

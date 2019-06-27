@@ -326,7 +326,7 @@
                 canvas.getContext('2d').drawImage(video, 0, 0, 400,300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(destination, {'user-token': userToken, 'task': 0x01}, image); //发送消息
+                    client.send(destination, {'userToken': userToken, 'task': 0x01}, image); //发送消息
                     // _this.sendMsg.image = image; //填充base64编码后的视频帧
                     // this.socket.send(JSON.stringify(_this.sendMsg)); //通过WebSocket发送到后台
                     // console.log(image);

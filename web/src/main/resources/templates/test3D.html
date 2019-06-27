@@ -102,40 +102,18 @@
                 <component :is="pageSet.left" :pose="poseData"></component><!--加载左侧组件-->
             </div>
             <div class="main-center">
-                <data-box :title="'实时Unity3D动画'" :dheight="500" :icon="'account'" :boxb="false">
-                    <div>
-                        <div id="gameContainer" style="width: 100%; height: 100%"></div>
-                    </div>
+                <data-box :title="'实时Unity3D动画'" :dheight="800" :icon="'account'" :boxb="false">
+                    <div id="gameContainer" style="width: 100%; height: 80%"></div>
                 </data-box>
             </div>
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
                     <data-box :title="'配置面板'" :dheight="400" :boxb="false">
                         <el-form style="padding: 20px;" label-position="left" label-width="150px">
-                            <el-form-item label="切换分区">
-                                <el-select v-model="chosenModule">
-                                    <el-option v-for="option in moduleOptions" :key="option.value" :label="option.label" :value="option.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="切换角色">
-                                <el-select v-model="chosenCharacter">
-                                    <el-option v-for="option in characterOptions" :key="option.value" :label="option.label" :value="option.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-form-item label="切换场景">
-                                <el-select v-model="chosenScene">
-                                    <el-option v-for="option in sceneOptions" :key="option.value" :label="option.label" :value="option.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
                             <el-form-item>
                                 <el-button :type="button.buttonType" @click="change"><span v-if="button.enable">禁用脚本</span><span v-if="!button.enable">激活脚本</span></el-button>
                                 <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">中止传输</span><span v-if="!button2.enable">开始传输</span></el-button>
                             </el-form-item>
-
-
                         </el-form>
                     </data-box>
                     <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
@@ -161,7 +139,7 @@
 
     var stompOnMessage = function (message) {
         if (message.body) { //数据不为空
-            free.gameInstance.SendMessage("unitychan", "GetPose", message.body); //调用Unity内部方法，将姿态数据传入
+            free.gameInstance.SendMessage("EmptyObject", "OnMessage", message.body); //调用Unity内部方法，将姿态数据传入
         }
     };
 
@@ -195,27 +173,6 @@
                 enable:false,
                 buttonType:'success',
             },
-            characterOptions:[{
-                label:'男性角色',
-                value:'boy'
-            },{
-                label:'女性角色',
-                value:'girl'
-            }],
-            sceneOptions:[{
-                label:'户外场景',
-                value:'outdoor'
-            },{
-                label:'室内场景',
-                value:'indoor'
-            }],
-            moduleOptions:[{
-                label:'动画舞蹈',
-                value:'dance'
-            },{
-                label:'健身指导',
-                value:'exercise'
-            }],
             chosenCharacter:'',
             chosenScene:'',
             chosenModule:'',
@@ -236,22 +193,12 @@
             }
         },
         mounted: function(){
-            this.initPage(); //页面组件初始化
-            let unityUrl = /*[[@{/webGL/UnityChan/Loader/UnityChan.json}]]*/ 'Sebastian';
+            this.pageSet = this.pageSetList.exercise;
+            let unityUrl = /*[[@{/webGL/NewPose/Loader/NewPose.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
         },
-        watch:{
-            chosenModule: function (newVal) {
-                this.pageSet = this.pageSetList[newVal];
-            }
-        },
         methods:{
-            initPage:function(){ //页面初始化
-                this.chosenCharacter = this.characterOptions[1].value; //初始选择女性角色
-                this.chosenScene = this.sceneOptions[0].value; //初始选择户外场景
-                this.chosenModule = this.moduleOptions[1].value; //初始选择功能分区
-            },
             initCamera:function(){
                 let _this = this;
                 let constraints = { video: true };

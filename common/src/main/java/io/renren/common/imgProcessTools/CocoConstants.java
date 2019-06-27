@@ -10,11 +10,11 @@ import java.util.List;
  * Created by AndrewKing on 10/17/2018.
  */
 public class CocoConstants {
-    static {
-//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String path =  OpencvUtils.dllPath;
-        System.load(path);
-    }
+//    static {
+////        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//        String path =  OpencvUtils.dllPath;
+//        System.load(path);
+//    }
 
 //       定义一些背景颜色
     private static Scalar s1 = new Scalar(255, 0, 0);

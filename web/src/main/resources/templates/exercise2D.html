@@ -323,7 +323,7 @@
                 canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(videoDestination, {'user-token': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
+                    client.send(videoDestination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
