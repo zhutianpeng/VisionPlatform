@@ -156,9 +156,9 @@
 
 <script type="text/javascript" th:inline="javascript">
 
-    var videoDestination, login, passcode, userToken;
+    var destination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
-    videoDestination = "/queue/video";
+    destination = "/queue/realTime2DInput";
     login = "admin";
     passcode = "password";
     userToken = "123";
@@ -181,13 +181,13 @@
     };
 
     const moveStateMapping = {
-        "0":"准备阶段，请做出预备动作",
-        "1":"开始阶段，请开始做动作",
-        "2":"运动阶段，请达到预期动作",
-        "3":"保持阶段，请保持动作",
-        "4":"返回阶段，请返回预期动作",
-        "5":"训练完成！",
-        "6":"出错，人数大于1！",
+        0:"准备阶段，请做出预备动作",
+        1:"开始阶段，请开始做动作",
+        2:"运动阶段，请达到预期动作",
+        3:"保持阶段，请保持动作",
+        4:"返回阶段，请返回预期动作",
+        5:"训练完成！",
+        6:"出错，人数大于1！",
     };
 
     var client = Stomp.client(url); //TODO 暂时关闭
@@ -204,7 +204,7 @@
 
             let singleArray = [];
             for (let key in singlePerson) {
-                app.poseData[key] = singlePerson[key].c; //填充置信度信息
+                exercise2D.poseData[key] = singlePerson[key].c; //填充置信度信息
                 if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
                     singleArray.push(pointMapping[key]);
                     singleArray.push(singlePerson[key].x - 150);
@@ -214,7 +214,7 @@
             }
             if (singleArray) { //数据不为空
                 console.log(singleArray.toString());
-                app.gameInstance.SendMessage("Philip", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
+                exercise2D.gameInstance.SendMessage("Philip", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
             }
         }
         if(jsonData.image){
@@ -222,7 +222,8 @@
             img.src = jsonData.image;
         }
         if(jsonData.moveStage){
-            app.moveState = moveStateMapping[json.moveState];
+            console.log(jsonData.moveStage);
+            exercise2D.moveState = moveStateMapping[jsonData.moveState];
         }
 
     };
@@ -234,7 +235,7 @@
 
     // the client is notified when it is connected to the server. TODO 暂时关闭
     client.connect(login, passcode, function (frame) {
-        client.subscribe("/user/" + userToken + "/video", stompOnMessage);
+        client.subscribe("/user/" + userToken + "/realTime2DOutput", stompOnMessage);
     }, stompOnError);
 
 
@@ -323,7 +324,7 @@
                 canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(videoDestination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
+                    client.send(destination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本

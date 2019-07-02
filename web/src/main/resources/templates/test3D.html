@@ -9,9 +9,9 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
-    <script th:src="@{/webGL/Receiver2D/TemplateData/UnityProgress.js}"></script>
-    <script th:src="@{/webGL/Receiver2D/Loader/UnityLoader.js}"></script>
-    <link rel="stylesheet" th:href="@{/webGL/Receiver2D/TemplateData/style.css}">
+    <script th:src="@{/webGL/NewPose/TemplateData/UnityProgress.js}"></script>
+    <script th:src="@{/webGL/NewPose/Loader/UnityLoader.js}"></script>
+    <link rel="stylesheet" th:href="@{/webGL/NewPose/TemplateData/style.css}">
 
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
     <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
@@ -130,7 +130,7 @@
 
     var url, destination, login, passcode, userToken;
     url = "ws://10.103.238.165:61614";
-    destination = "/queue/realTime";
+    destination = "/queue/realTime3DInput";
     login = "admin";
     passcode = "password";
     userToken = "111";
@@ -150,20 +150,13 @@
 
     // the client is notified when it is connected to the server.
     client.connect(login, passcode, function (frame) {
-        client.subscribe("/user/" + userToken + "/video", stompOnMessage);
+        client.subscribe("/user/" + userToken + "/realTime3DOutput", stompOnMessage);
     }, stompOnError);
 
 
     var free = new Vue({
         el:'#free',
         data:{
-            stompInfo:{
-                url: "ws://10.103.238.165:61614",
-                destination: "/queue/video",
-                login: "admin",
-                passcode: "password",
-                client:''
-            },
             gameInstance:'',
             button:{
                 enable:true,
@@ -244,48 +237,7 @@
                     clearInterval(_this.myTimer);
                     _this.button2.buttonType = 'success';
                 }
-            },
-
-
-            // recordVideo: function (stream) { //录制实时视频
-            //     let _this = this;
-            //     let options;
-            //     if (typeof MediaRecorder.isTypeSupported == 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
-            //         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-            //             options = {mimeType: 'video/webm;codecs=vp8'};
-            //         }
-            //         console.log('Using '+options.mimeType);
-            //         mediaRecorder = new MediaRecorder(stream, options);
-            //     }else{
-            //         log('isTypeSupported is not supported, using default codecs for browser');
-            //         mediaRecorder = new MediaRecorder(stream);
-            //     }
-            //
-            //     mediaRecorder.ondataavailable = function(event) { //当视频数据准备完成时回调
-            //         // this.chunks.push(event.data);
-            //         let reader = new FileReader();
-            //         reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
-            //             let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
-            //             console.log(buf);
-            //             if(reader.result.byteLength > 0){ //空数据不进行发送
-            //                 _this.socket.send(buf);
-            //             }
-            //         });
-            //         reader.readAsArrayBuffer(event.data);
-            //     };
-            //     mediaRecorder.onerror = function(e){
-            //         console.log('实时视频录制出错：' + e);
-            //     };
-            //     mediaRecorder.onstart = function(){
-            //         console.log('实时视频开始录制：' + mediaRecorder.state);
-            //     };
-            //     mediaRecorder.start(10); //每10ms记录成一个Blob
-            // }
-
+            }
         },
         components:{
             dataBox:DataBox,
