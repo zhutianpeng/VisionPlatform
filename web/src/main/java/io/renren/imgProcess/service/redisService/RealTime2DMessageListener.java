@@ -53,9 +53,9 @@ public class RealTime2DMessageListener implements MessageListener {
 //        if(StringUtils.isNotBlank(faceResultString)){
 //            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
 //        }
-
+//
         String poseResultParsed=null;
-//        get pose result ArrayList
+////        get pose result ArrayList
 //        if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
 //            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
 //        }
@@ -67,7 +67,7 @@ public class RealTime2DMessageListener implements MessageListener {
             result.put("moveStage", moveStage);
         }
 
-//        result.put("image", imageResult); //带分析结果的图片
+        result.put("image", imageResult); //带分析结果的图片
 
         if(StringUtils.isNotBlank(poseResultParsed)){
             result.put("poseResultParsed", poseResultParsed); //姿态数据

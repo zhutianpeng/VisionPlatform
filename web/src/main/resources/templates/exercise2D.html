@@ -138,8 +138,8 @@
                     <data-box :title="'动作指导视频'" :dheight="400" :boxb="false">
                         <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">结束训练</span><span v-if="!button2.enable">开始训练</span></el-button>
                         <div style="color: white">
-                            <div>当前运动状态：</div>
-                            <div>{{moveState}}</div>
+                            <h1>当前运动状态：</h1>
+                            <h1>{{moveState}}</h1>
                         </div>
 
                     </data-box>
@@ -181,13 +181,11 @@
     };
 
     const moveStateMapping = {
-        0:"准备阶段，请做出预备动作",
-        1:"开始阶段，请开始做动作",
-        2:"运动阶段，请达到预期动作",
-        3:"保持阶段，请保持动作",
-        4:"返回阶段，请返回预期动作",
-        5:"训练完成！",
-        6:"出错，人数大于1！",
+        "0":"准备阶段，请摆出准备姿态",
+        "1":"运动阶段，请开始运动达到预期姿态",
+        "2":"保持阶段，请保持该姿态",
+        "3":"恢复阶段，请恢复到准备姿态",
+        "4":"单次动作训练完成！",
     };
 
     var client = Stomp.client(url); //TODO 暂时关闭
@@ -223,7 +221,7 @@
         }
         if(jsonData.moveStage){
             console.log(jsonData.moveStage);
-            exercise2D.moveState = moveStateMapping[jsonData.moveState];
+            exercise2D.moveState = moveStateMapping[jsonData.moveStage];
         }
 
     };

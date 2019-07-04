@@ -1,17 +1,17 @@
 package io.renren.common.imgProcessTools;
-
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
 import org.opencv.highgui.Highgui;
+
 import java.util.Base64;
 
 public class OpencvUtils {
     public static final  String dllPath = "D:\\opencv\\build\\java\\x64\\opencv_java2413.dll";
     static{
+        nu.pattern.OpenCV.loadShared();
 //        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        System.load(dllPath);
+//        System.load(dllPath);
     }
     public static Mat Base64ToMat(String s){
 //      base64转mat，with 'data:image/jpeg;base64,' this head
