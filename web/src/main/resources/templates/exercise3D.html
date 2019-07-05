@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
     <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script><!--jquery表单提交-->
-    <script th:src="@{/webGL/Receiver3D/TemplateData/UnityProgress.js}"></script>
-    <script th:src="@{/webGL/Receiver3D/Loader/UnityLoader.js}"></script>
-    <link rel="stylesheet" th:href="@{/webGL/Receiver3D/TemplateData/style.css}">
+    <script th:src="@{/webGL/NewPose/TemplateData/UnityProgress.js}"></script>
+    <script th:src="@{/webGL/NewPose/Loader/UnityLoader.js}"></script>
+    <link rel="stylesheet" th:href="@{/webGL/NewPose/TemplateData/style.css}">
 
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
     <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
@@ -177,7 +177,7 @@
             dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
-            let unityUrl = /*[[@{/webGL/Receiver3D/Loader/Receiver3D.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/NewPose/Loader/NewPose.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
             // this.downloadData(); //拉取姿态数据（测试用）
@@ -283,10 +283,10 @@
             startPlaying: function () { //数据准备完成后开始播放按钮回调函数
                 let poseData = sessionStorage.getItem("poseData");
                 let fps = sessionStorage.getItem("fps");
-                this.gameInstance.SendMessage("BoxUnityChan", "GetPoseData", poseData + "@" + fps); //调用Unity内部方法，将姿态数据传入
+                this.gameInstance.SendMessage("EmptyObject", "OffLine3DOnMessage", poseData + "@" + fps); //调用Unity内部方法，将姿态数据传入
             },
             stopPlaying: function () { //停止播放
-                this.gameInstance.SendMessage("BoxUnityChan", "StopAction");
+                this.gameInstance.SendMessage("EmptyObject", "StopAction");
             },
             startRecording: function () { //开始录制
                 this.mediaRecorder.start(10);
