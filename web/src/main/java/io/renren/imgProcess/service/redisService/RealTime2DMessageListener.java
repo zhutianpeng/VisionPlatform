@@ -42,23 +42,23 @@ public class RealTime2DMessageListener implements MessageListener {
 //        output
         String imageResult = imageContent;
 
-////        pose
+//        pose
         String poseResultString = jedis.hget(imageID, "poseResult");
-//        if(StringUtils.isNotBlank(poseResultString)){
-//            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
-//        }
+        if(StringUtils.isNotBlank(poseResultString)){
+            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
+        }
 //
-////        face
-//        String faceResultString = jedis.hget(imageID, "faceResult");
-//        if(StringUtils.isNotBlank(faceResultString)){
-//            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
-//        }
+//        face
+        String faceResultString = jedis.hget(imageID, "faceResult");
+        if(StringUtils.isNotBlank(faceResultString)){
+            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
+        }
 //
         String poseResultParsed=null;
-////        get pose result ArrayList
-//        if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
-//            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
-//        }
+//        get pose result ArrayList
+        if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
+            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
+        }
 
 //        存放结果的hashMap
         Map<String, String> result = new HashMap<String, String>();
