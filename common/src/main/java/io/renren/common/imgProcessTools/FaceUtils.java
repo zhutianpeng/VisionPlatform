@@ -9,9 +9,9 @@ import org.opencv.core.Scalar;
 
 public class FaceUtils {
     static{
-//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String path = OpencvUtils.dllPath;
-        System.load(path);
+        nu.pattern.OpenCV.loadShared();
+//        String path = OpencvUtils.dllPath;
+//        System.load(path);
     }
 
     public static String drawFaces(String faceResultString, String imageResult) {

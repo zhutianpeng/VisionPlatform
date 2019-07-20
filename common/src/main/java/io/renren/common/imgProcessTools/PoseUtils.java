@@ -19,9 +19,9 @@ import java.util.Set;
 public class PoseUtils {
 
     static{
-//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String path = OpencvUtils.dllPath;
-        System.load(path);
+        nu.pattern.OpenCV.loadShared();
+//        String path = OpencvUtils.dllPath;
+//        System.load(path);
     }
 
     public static String drawHumans(String poseResultString, String imageContent) {

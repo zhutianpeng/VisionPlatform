@@ -108,7 +108,7 @@
                         <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
                     </el-select>
                     <el-card class="box-card" v-for="item in training.moveList">
-                        <el-radio v-model="moveId" :label="item.moveInstanceId">{{item.movetypeName}}</el-radio>
+                        <el-radio v-model="selectedMoveId" :label="item.moveInstanceId">{{item.movetypeName}}</el-radio>
                         <img :src="item.moveImage" height="100%" width="100%">
                         <!--<div v-for="(value, key) in item" class="text item">-->
                             <!--{{key}} : {{value}}-->
@@ -117,29 +117,32 @@
                 </data-box>
             </div>
             <div class="main-center">
-                <data-box :title="'动作参数展示区'" :dheight="300">
-                    <el-card class="box-card">
-                        <div v-for="item in move.motionList">
-                            <img :src="item.motionImage" height="100%">
-                            <div class="text item">
-                                弯曲角度：{{item.rotateAngle}}
-                            </div>
-                        </div>
-                    </el-card>
-                </data-box>
-                <data-box :title="'实时Unity3D动画'" :dheight="500" :icon="'account'" :boxb="false">
-                    <div>
-                        <div id="gameContainer" style="width: 100%; height: 100%"></div>
-                    </div>
+<!--                <data-box :title="'动作参数展示区'" :dheight="300">-->
+<!--                    <el-card class="box-card">-->
+<!--                        <div v-for="item in selectedMove.motionList">-->
+<!--                            <img :src="item.motionImage" height="100%">-->
+<!--                            <div class="text item">-->
+<!--                                弯曲角度：{{item.rotateAngle}}-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </el-card>-->
+<!--                </data-box>-->
+                <data-box :title="'分区介绍'" :dheight="290" :icon="'account'">
+                    <img id="targetImg" style="height: 100%; width: 50%;"/>
                 </data-box>
             </div>
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
-                    <data-box :title="'动作指导视频'" :dheight="400" :boxb="false">
+                    <data-box :title="'动作指导建议区'" :dheight="400" :boxb="false">
                         <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">结束训练</span><span v-if="!button2.enable">开始训练</span></el-button>
                         <div style="color: white">
-                            <div>当前运动状态：</div>
-                            <div>{{moveState}}</div>
+                            <h3>所选训练动作：{{selectedMove.movetypeName}}</h3>
+                            <h3>需要进行{{selectedMove.groupsPerRepeat}}组，每组{{selectedMove.timesPerGroup}}次，每组间隔{{selectedMove.restBetweenGroup}}s</h3>
+                            <div v-if="trainingAdvice.isActive">
+                                <h3>当前正在进行第{{trainingAdvice.currentGroup}}组，已完成了{{trainingAdvice.finishedTime}}次</h3>
+                                <h3>当前运动状态：</h3>
+                                <h3>{{trainingAdvice.currentMoveState}}</h3>
+                            </div>
                         </div>
 
                     </data-box>
@@ -149,6 +152,12 @@
                     </data-box>
                 </data-box>
 
+                <el-dialog title="提示"
+                        :visible.sync="trainingAdvice.perGroupDialog"
+                        width="30%">
+                    <h2>单组训练已完成，请休息一下</h2>
+                    <h2>倒计时：{{trainingAdvice.time}}</h2>
+                </el-dialog>
             </div>
         </div>
     </div>
@@ -161,7 +170,7 @@
     destination = "/queue/realTime2DInput";
     login = "admin";
     passcode = "password";
-    userToken = "123";
+    userToken = "22";
 
     var pointMapping = { //关节点映射表，由于识别关节点和Unity关节点不同，因此需要进行转换
         "0": 10,
@@ -181,49 +190,51 @@
     };
 
     const moveStateMapping = {
-        0:"准备阶段，请做出预备动作",
-        1:"开始阶段，请开始做动作",
-        2:"运动阶段，请达到预期动作",
-        3:"保持阶段，请保持动作",
-        4:"返回阶段，请返回预期动作",
-        5:"训练完成！",
-        6:"出错，人数大于1！",
+        0:"准备阶段，请摆出准备姿态",
+        1:"运动阶段，请开始运动达到预期姿态",
+        2:"保持阶段，请保持该姿态",
+        3:"恢复阶段，请恢复到准备姿态",
+        4:"单次动作训练完成！",
     };
 
     var client = Stomp.client(url); //TODO 暂时关闭
 
     var stompOnMessage = function (message) {
         let jsonData = JSON.parse(message.body); //接收数据JSON示例：{'image':'', 'poseResultParsed':''}
-        if (jsonData.poseResultParsed) {
-            let poseArray = JSON.parse(jsonData.poseResultParsed); //单帧二维坐标点数据
-            // for(let i = 0; i < poseArray.length;i ++){ //TODO 多人场景？
-            //
-            // }
-
-            let singlePerson = poseArray[0]; //singlePerson是个JSON对象，key为关节点index值，value为横纵坐标以及置信度所组成的JSON对象
-
-            let singleArray = [];
-            for (let key in singlePerson) {
-                exercise2D.poseData[key] = singlePerson[key].c; //填充置信度信息
-                if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
-                    singleArray.push(pointMapping[key]);
-                    singleArray.push(singlePerson[key].x - 150);
-                    singleArray.push(400 - singlePerson[key].y);
-
-                }
-            }
-            if (singleArray) { //数据不为空
-                console.log(singleArray.toString());
-                exercise2D.gameInstance.SendMessage("Philip", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
-            }
-        }
+        // if (jsonData.poseResultParsed) {
+        //     let poseArray = JSON.parse(jsonData.poseResultParsed); //单帧二维坐标点数据
+        //     // for(let i = 0; i < poseArray.length;i ++){ //TODO 多人场景？
+        //     //
+        //     // }
+        //
+        //     let singlePerson = poseArray[0]; //singlePerson是个JSON对象，key为关节点index值，value为横纵坐标以及置信度所组成的JSON对象
+        //
+        //     let singleArray = [];
+        //     for (let key in singlePerson) {
+        //         exercise2D.poseData[key] = singlePerson[key].c; //填充置信度信息
+        //         if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
+        //             singleArray.push(pointMapping[key]);
+        //             singleArray.push(singlePerson[key].x - 150);
+        //             singleArray.push(400 - singlePerson[key].y);
+        //
+        //         }
+        //     }
+        //     if (singleArray) { //数据不为空
+        //         console.log(singleArray.toString());
+        //         exercise2D.gameInstance.SendMessage("Philip", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
+        //     }
+        // }
         if(jsonData.image){
             let img = document.getElementById("targetImg");
             img.src = jsonData.image;
         }
         if(jsonData.moveStage){
-            console.log(jsonData.moveStage);
-            exercise2D.moveState = moveStateMapping[jsonData.moveState];
+            let moveStage = parseInt(jsonData.moveStage);
+            console.log("服务器传来的运动状态标记：" + moveStage);
+            exercise2D.trainingAdvice.currentMoveState = moveStateMapping[moveStage];
+            if(moveStage === 4){
+                exercise2D.trainingAdvice.finishedTime ++; //动作已完成次数加一
+            }
         }
 
     };
@@ -253,13 +264,26 @@
             trainingList:[], //该用户的所有训练计划
             trainingId:'', //用户选择的训练计划ID
             training:{}, //用户选择的训练计划
-            moveId:'', //用户选择的动作ID
-            move:{}, //用户选择的动作
+            selectedMoveId:'', //用户选择的动作ID
+            selectedMove:{
+                movetypeName:'', //动作名称
+                moveInstanceId:'', //动作ID
+                groupsPerRepeat:'', //重复几组
+                timesPerGroup:'', //每组重复几次
+                restBetweenGroup:'' //每组间休息时间
+            }, //用户选择的动作
             button2:{ //开始（停止）训练按钮
                 enable:false,
                 buttonType:'success',
             },
-            moveState:"训练未开始，暂无状态信息"
+            trainingAdvice:{
+                isActive: false, //是否可见，训练未开始时不可见
+                currentGroup:'', //当前第几组
+                finishedTime:'', //已完成了多少次
+                currentMoveState:'', //当前运动状态
+                perGroupDialog: false, //单组训练完成时的对话框显示
+                time:'' //剩余休息时间（用于倒计时）
+            },
         },
         mounted: function(){
             
@@ -273,16 +297,37 @@
 
 
         },
+        computed:{
+            getFinishedTime:function () {
+                return this.trainingAdvice.finishedTime;
+            },
+            getCurrentGroup: function () {
+                return this.trainingAdvice.currentGroup;
+            }
+        },
         watch:{
             trainingId: function (newVal) { //筛选出符合条件的训练计划
                 this.training = this.trainingList.filter(function (item) {
                      return item.trainingId === newVal;
                 })[0];
             },
-            moveId: function(newVal) { //监听用户选择的动作
-                this.move = this.training.moveList.filter(function(item){
+            selectedMoveId: function(newVal) { //监听用户选择的动作
+                this.selectedMove = this.training.moveList.filter(function(item){
                     return item.moveInstanceId === newVal;
                 })[0];
+            },
+            getFinishedTime: function (newVal) {
+                if(newVal >= this.selectedMove.timesPerGroup){
+                    this.trainingAdvice.currentGroup ++;
+                    this.trainingAdvice.finishedTime = 0;
+                }
+            },
+            getCurrentGroup: function (newVal) {
+                if(newVal >= this.selectedMove.groupsPerRepeat){
+                    this.finishedTraining();
+                }else if (newVal >= 2){
+                    this.finishedSingleGroup();
+                }
             }
         },
         methods:{
@@ -294,7 +339,7 @@
                     dataType: 'json',
                     contentType : 'application/json',
                     data: JSON.stringify({
-                        userId: 36
+                        userId: 22
                     }),
                     type: 'POST',
                     success: function (data) {
@@ -324,7 +369,7 @@
                 canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(destination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': 523}, image); //发送消息
+                    client.send(destination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': _this.selectedMoveId}, image); //发送消息
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
@@ -338,8 +383,11 @@
                     this.button.buttonType = 'success';
                 }
             },
-            changeTrans:function () { //按钮调用，用于启动图像传输
+            changeTrans:function () { //按钮调用，用于开启或终止训练
                 let _this = this;
+                _this.trainingAdvice.isActive = true; //使得训练建议可见
+                _this.trainingAdvice.currentGroup = 1;
+                _this.trainingAdvice.finishedTime = 0;
                 _this.button2.enable = !_this.button2.enable;
                 if(_this.button2.enable){
                     _this.button2.buttonType = 'danger';
@@ -347,10 +395,38 @@
                         _this.transImage(document.querySelector('video'));
                     }, 500); //100ms发送一次
                 } else {
-                    clearInterval(_this.myTimer);
-                    _this.button2.buttonType = 'success';
+                    _this.finishedTraining();
                 }
             },
+            finishedSingleGroup: function() { //完成单次训练时的回调函数
+                let _this = this;
+                clearInterval(_this.myTimer); //停止图像传输
+                _this.trainingAdvice.time = _this.selectedMove.restBetweenGroup;
+                _this.trainingAdvice.perGroupDialog = true; //弹出对话框提示
+                let timer = setInterval(function() {
+                    if(_this.trainingAdvice.time > 0){
+                        _this.trainingAdvice.time --;
+                    }else{ //倒计时结束
+                        _this.trainingAdvice.perGroupDialog = false; //关闭对话框提示
+                        clearInterval(timer);
+                        _this.myTimer = setInterval(function(){
+                            _this.transImage(document.querySelector('video'));
+                        }, 100); //重新开启图像传输
+                    }
+                }, 1000);
+            },
+            finishedTraining:function () { //完成全部训练时的回调函数
+                let _this = this;
+                clearInterval(_this.myTimer); //停止图像传输
+                _this.button2.buttonType = 'success';
+                _this.trainingAdvice.isActive = false; //关闭训练建议可见
+                _this.$notify({
+                    title: '辛苦了！',
+                    message: '该动作训练已全部完成',
+                    type: 'success'
+                });
+            },
+
         },
         components:{
             dataBox:DataBox,

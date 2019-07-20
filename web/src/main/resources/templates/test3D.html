@@ -139,7 +139,7 @@
 
     var stompOnMessage = function (message) {
         if (message.body) { //数据不为空
-            free.gameInstance.SendMessage("EmptyObject", "OnMessage", message.body); //调用Unity内部方法，将姿态数据传入
+            free.gameInstance.SendMessage("EmptyObject", "RealTime3DOnMessage", message.body); //调用Unity内部方法，将姿态数据传入
         }
     };
 
@@ -215,7 +215,7 @@
                 }
             },
             change:function(){ //控制WebGL激活/禁用脚本
-                this.gameInstance.SendMessage("unitychan", "ChangeState");
+                this.gameInstance.SendMessage("EmptyObject", "ChangeState");
                 console.log("脚本状态改变！");
                 this.button.enable = !this.button.enable;
                 if(this.button.enable){
