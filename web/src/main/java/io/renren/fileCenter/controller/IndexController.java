@@ -30,4 +30,9 @@ public class IndexController {
         return "test3D";
     }
 
+    @RequestMapping("/demo")
+    public String demo(){
+        return "demo";
+    }
+
 }
