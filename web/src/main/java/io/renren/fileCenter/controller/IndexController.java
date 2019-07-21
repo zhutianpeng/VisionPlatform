@@ -30,16 +30,14 @@ public class IndexController {
         return "test3D";
     }
 
-<<<<<<< HEAD
     @RequestMapping("/demo")
     public String demo(){
         return "demo";
     }
 
-=======
+
     @RequestMapping("/login")
     public String login(){
         return "login";
     }
->>>>>>> 386d5d5e0a00a41c6827d96f591d26106390072b
 }

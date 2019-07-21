@@ -11,8 +11,8 @@
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
     <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script><!--jquery表单提交-->
     <script src="http://vjs.zencdn.net/5.18.4/video.min.js"></script><!--    视频播放器-->
-    <script th:src="@{/webGL/NewPose/TemplateData/UnityProgress.js}"></script>
-    <script th:src="@{/webGL/NewPose/Loader/UnityLoader.js}"></script>
+    <script th:src="@{/webGL/NewPoseV2/TemplateData/UnityProgress.js}"></script>
+    <script th:src="@{/webGL/NewPoseV2/Loader/UnityLoader.js}"></script>
     <link rel="stylesheet" th:href="@{/webGL/NewPose/TemplateData/style.css}">
 
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
@@ -133,9 +133,7 @@
                     <data-box :title="'原始视频画面'" :dheight="400" :boxb="false">
 <!--                        <video style="width: 100%; height: 100%" autoplay></video>-->
 <!--                        <canvas id="targetCanvas" width="400px" height="300px" style="visibility:hidden;"></canvas>-->
-                        <video id="originalVideo"
-                               controls preload="auto"
-                               width="100%" height="100%">
+                        <video id="originalVideo" controls preload="auto" width="100%" height="100%">
                             <source th:src="@{/video/dance.mp4}" type="video/mp4">
                         </video>
                     </data-box>
@@ -182,7 +180,7 @@
             dataAvailable: false //标志3D姿态数据是否准备完成
         },
         mounted: function(){
-            let unityUrl = /*[[@{/webGL/NewPose/Loader/NewPose.json}]]*/ 'Sebastian';
+            let unityUrl = /*[[@{/webGL/NewPoseV2/Loader/NewPoseV2.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.initCamera(); //初始化摄像头
             // this.downloadData(); //拉取姿态数据（测试用）
@@ -288,17 +286,16 @@
             startPlaying: function () { //数据准备完成后开始播放按钮回调函数
                 let _this = this;
                 let poseData = sessionStorage.getItem("poseData");
-                console.log(poseData);
                 poseData = _this.parseData(poseData);
                 console.log(poseData);
                 let fps = sessionStorage.getItem("fps");
                 this.gameInstance.SendMessage("EmptyObject", "OffLine3DOnMessage", poseData + "@" + fps); //调用Unity内部方法，将姿态数据传入
-                let myPlayer = videojs('originalVideo');
+                let myPlayer = document.getElementById('originalVideo');
                 myPlayer.play();
             },
             stopPlaying: function () { //停止播放
                 this.gameInstance.SendMessage("EmptyObject", "StopAction");
-                let myPlayer = videojs('originalVideo');
+                let myPlayer = document.getElementById('originalVideo');
                 myPlayer.pause();
             },
             startRecording: function () { //开始录制
