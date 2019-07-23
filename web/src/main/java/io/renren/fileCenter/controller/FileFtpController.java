@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestController
-@Api(tags="离线3D姿态数据处理")
+@Api(tags="离线姿态数据处理")
 public class FileFtpController {
 
     @Autowired

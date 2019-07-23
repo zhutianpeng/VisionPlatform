@@ -1,18 +1,21 @@
 package io.renren.fileCenter.controller;
 
-import io.renren.common.utils.R;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class IndexController {
 
-    @RequestMapping("/offLine3D")
+//    离线3D姿态估计
+    @RequestMapping("/offline3D")
     public String offLine3D(){
-        return "exercise3D";
+        return "offline3D";
+    }
+
+    //    离线2D姿态估计
+    @RequestMapping("/offline2D")
+    public String offLine2D(){
+        return "offline2D";
     }
 
     @RequestMapping("/free")
