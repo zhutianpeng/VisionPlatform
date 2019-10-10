@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
     <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/js/common/jquery.runner.js}"></script> <!-- jquery计时器插件 -->
     <script th:src="@{/webGL/Receiver2D/TemplateData/UnityProgress.js}"></script>
     <script th:src="@{/webGL/Receiver2D/Loader/UnityLoader.js}"></script>
     <link rel="stylesheet" th:href="@{/webGL/Receiver2D/TemplateData/style.css}">
@@ -103,19 +104,21 @@
 
         <div class="data-main">
             <div class="main-left">
-                <data-box :title="'训练计划选择区'" :dheight="800">
-                    <el-select v-model="trainingId" placeholder="选择用户训练计划">
-                        <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
-                    </el-select>
-                    <el-card class="box-card" v-for="item in training.moveList">
-                        <el-radio v-model="selectedMoveId" :label="item.moveInstanceId">{{item.movetypeName}}</el-radio>
-                        <img :src="item.moveImage" height="100%" width="100%">
-                        <!--<div v-for="(value, key) in item" class="text item">-->
-                            <!--{{key}} : {{value}}-->
-                        <!--</div>-->
-                    </el-card>
+                <data-box :title="''" :dheight="800">
+                    <data-box :title="'训练用时统计'" :dheight="100" :boxb="false">
+                        <div style="text-align: center">
+                            <span id="runner" style="font-size: 50px; color: white"></span>
+                        </div>
+                    </data-box>
+                    <data-box :title="'动作完成情况统计'" :dheight="300" :boxb="false">
+                        <ve-waterfall :data="charts.completeStatus.data" :extend="charts.completeStatus.extend"height="100%"></ve-waterfall>
+                    </data-box>
+                    <data-box :title="'Unity人物模型动作跟随画面'" :dheight="378" :boxb="false">
+                        <div id="gameContainer" style="width: 100%; height: 100%"></div>
+                    </data-box>
                 </data-box>
             </div>
+
             <div class="main-center">
 <!--                <data-box :title="'动作参数展示区'" :dheight="300">-->
 <!--                    <el-card class="box-card">-->
@@ -127,29 +130,58 @@
 <!--                        </div>-->
 <!--                    </el-card>-->
 <!--                </data-box>-->
-                <data-box :title="'分区介绍'" :dheight="290" :icon="'account'">
-                    <img id="targetImg" style="height: 100%; width: 50%;"/>
+                <data-box :title="'实时估计画面'" :dheight="500">
+                    <div style="text-align: center;width: 100%; height: 100%;">
+                        <img id="targetImg" style="width: 100%; height: 100%;"/>
+                    </div>
+                    <video style="width: 100%; height: 100%;visibility:hidden;" autoplay></video>
+                </data-box>
+                <data-box :title="''" :dheight="290" style="margin-top: 10px">
+                    <data-box :title="'训练效率'" :dheight="290" :boxb="false" style="width: 33%; float: left; text-align: center">
+                        <ve-gauge height="100%" :data="charts.trainingEfficiency.data" :settings="charts.trainingEfficiency.settings"></ve-gauge>
+                    </data-box>
+                    <data-box :title="'损伤风险'" :dheight="290" :boxb="false" style="width: 33%; float: left; text-align: center">
+                        <ve-gauge height="100%" :data="charts.injuryRisk.data" :settings="charts.injuryRisk.settings"></ve-gauge>
+                    </data-box>
+                    <data-box :title="'动作余弦相似度'" :dheight="290" :boxb="false" style="width: 33%; float: left; text-align: center">
+                        <ve-radar :data="charts.cosineSimilarity.data" :extend="charts.cosineSimilarity.extend" :legend-visible="false" height="100%"></ve-radar>
+                    </data-box>
                 </data-box>
             </div>
+
             <div class="main-right">
                 <data-box :title="''" :dheight="800">
-                    <data-box :title="'动作指导建议区'" :dheight="400" :boxb="false">
-                        <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">结束训练</span><span v-if="!button2.enable">开始训练</span></el-button>
-                        <div style="color: white">
-                            <h3>所选训练动作：{{selectedMove.movetypeName}}</h3>
-                            <h3>需要进行{{selectedMove.groupsPerRepeat}}组，每组{{selectedMove.timesPerGroup}}次，每组间隔{{selectedMove.restBetweenGroup}}s</h3>
+                    <data-box :title="'控制面板'" :dheight="100" :boxb="false">
+                        <div style="margin-top: 5px;margin-left: 10px">
+                            <el-button type="success" @click="drawer.isActive = true"><span>选择训练计划</span></el-button>
+                            <el-button :type="button2.buttonType" @click="changeTrans"><span v-if="button2.enable">结束训练</span><span v-if="!button2.enable">开始训练</span></el-button>
+                        </div>
+                    </data-box>
+                    <data-box :title="'训练指导建议'" :dheight="150" :boxb="false">
+                        <div style="color: white; margin-left: 10px; font-size: 20px">
+                            <div>所选训练动作：<span style="font-weight: bold">{{selectedMove.movetypeName}}</span></div>
+                            <div>需要进行<span style="font-weight: bold">{{selectedMove.groupsPerRepeat}}</span> 组，
+                                每组<span style="font-weight: bold">{{selectedMove.timesPerGroup}}</span>次，
+                                每组间隔<span style="font-weight: bold">{{selectedMove.restBetweenGroup}}</span>s</div>
                             <div v-if="trainingAdvice.isActive">
-                                <h3>当前正在进行第{{trainingAdvice.currentGroup}}组，已完成了{{trainingAdvice.finishedTime}}次</h3>
-                                <h3>当前运动状态：</h3>
-                                <h3>{{trainingAdvice.currentMoveState}}</h3>
+                                <div>当前正在进行第<span style="font-weight: bold">{{trainingAdvice.currentGroup}}</span>组，
+                                    已完成了<span style="font-weight: bold">{{trainingAdvice.finishedTime}}</span>次</div>
+                                <div>当前运动状态：</div>
+                                <div style="font-weight: bold">{{trainingAdvice.currentMoveState}}</div>
                             </div>
                         </div>
+                    </data-box>
 
+                    <data-box :title="'上肢波动曲线'" :dheight="275" :boxb="false">
+                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.data" :settings="charts.bodyFluctuate.settings"></ve-line>
                     </data-box>
-                    <data-box :title="'摄像头实时输出画面'" :dheight="400" :boxb="false">
-                        <video style="width: 100%; height: 100%" autoplay></video>
-                        <canvas id="targetCanvas" width="400px" height="300px" style="visibility:hidden;"></canvas>
+                    <data-box :title="'下肢波动曲线'" :dheight="275" :boxb="false">
+                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.data" :settings="charts.bodyFluctuate.settings"></ve-line>
                     </data-box>
+<!--                    <data-box :title="'摄像头实时画面'" :dheight="400" :boxb="false">-->
+<!--                        <video style="width: 100%; height: 100%" autoplay></video>-->
+<!--                        <canvas id="targetCanvas" width="400px" height="300px" style="visibility:hidden;"></canvas>-->
+<!--                    </data-box>-->
                 </data-box>
 
                 <el-dialog title="提示"
@@ -161,6 +193,21 @@
             </div>
         </div>
     </div>
+
+    <!--    训练计划选择抽屉-->
+    <el-drawer :visible.sync="drawer.isActive" direction="rtl">
+        <h3 style="margin-left: 10%; font-weight: bold">训练计划选择菜单</h3>
+        <el-select v-model="trainingId" placeholder="选择用户训练计划" style="margin-left: 10%; margin-top: 10px">
+            <el-option v-for="item in trainingList" :label="item.name" :value="item.trainingId"></el-option>
+        </el-select>
+        <div style="float: left; overflow: auto; height: 55%; margin-top: 10px" >
+            <el-card class="box-card" v-for="item in training.moveList" style="width: 60%; margin-left: 10%; ">
+                <el-radio v-model="selectedMoveId" :label="item.moveInstanceId"><span style="font-weight: bold; font-size: 20px">{{item.movetypeName}}</span></el-radio>
+                <img :src="item.moveImage" style="width: 100%">
+            </el-card>
+        </div>
+
+    </el-drawer>
 </div>
 
 <script type="text/javascript" th:inline="javascript">
@@ -170,7 +217,7 @@
     destination = "/queue/realTime2DInput";
     login = "admin";
     passcode = "password";
-    userToken = "22";
+    userToken = "36";
 
     var pointMapping = { //关节点映射表，由于识别关节点和Unity关节点不同，因此需要进行转换
         "0": 10,
@@ -226,7 +273,7 @@
         // }
         if(jsonData.image){
             let img = document.getElementById("targetImg");
-            img.src = jsonData.image;
+            img.src = jsonData;
         }
         if(jsonData.moveStage){
             let moveStage = parseInt(jsonData.moveStage);
@@ -277,18 +324,232 @@
                 buttonType:'success',
             },
             trainingAdvice:{
-                isActive: false, //是否可见，训练未开始时不可见
+                isActive: true, //是否可见，训练未开始时不可见
                 currentGroup:'', //当前第几组
                 finishedTime:'', //已完成了多少次
                 currentMoveState:'', //当前运动状态
                 perGroupDialog: false, //单组训练完成时的对话框显示
                 time:'' //剩余休息时间（用于倒计时）
             },
+            drawer:{  //训练计划选择抽屉
+                isActive: false,
+            },
+            charts:{
+                completeStatus:{
+                    data:{
+                        columns: ['完成状态', '次数'],
+                        rows: [
+                            { '完成状态': '标准', '次数': 4 },
+                            { '完成状态': '尚可', '次数': 10 },
+                            { '完成状态': '不合格', '次数': 5 }
+                        ]
+                    },
+                    extend:{
+                        legend: {
+                            textStyle: {color: '#fff'},
+                        },
+                        grid: {
+                            textStyle: {
+                                color: "#fff"
+                            },
+                            height:190
+                        },
+                        xAxis: {
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#fff'
+                                }
+                            }
+                        },
+                        yAxis: {
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#fff'
+                                }
+                            }
+                        }
+
+                    }
+                },
+                cosineSimilarity:{
+                    data:{
+                        columns: ['名称', '左大臂-小臂','右大臂-小臂','左胯-大腿','右胯-大腿','左大腿-小腿','右大腿-小腿'],
+                        rows: [
+                            { '名称':'余弦相似度', '左大臂-小臂': 97, '右大臂-小臂': 50, '左胯-大腿': 60,'右胯-大腿': 70, '左大腿-小腿': 80, '右大腿-小腿': 91},
+                        ]
+                    },
+                    extend:{
+                        radar:{
+                            radius: "60%"
+                        },
+                        indicator: [
+                            { name: '左大臂-小臂', max: 100 },
+                            { name: '右大臂-小臂', max: 100 },
+                            { name: '左胯-大腿', max: 100 },
+                            { name: '右胯-大腿', max: 100 },
+                            { name: '左大腿-小腿', max: 100 },
+                            { name: '右大腿-小腿', max: 100 }
+                        ],
+                    }
+                },
+                bodyFluctuate:{
+                    settings:{
+                        metrics: ['Left', 'Right'],
+                        dimension: ['time']
+                    },
+                    data:{
+                        columns: ['time', 'Left', 'Right'],
+                        rows: [
+                            { 'time': '1/1', 'Left': 1393, 'Right': 1093},
+                            { 'time': '1/2', 'Left': 3530, 'Right': 3230},
+                            { 'time': '1/3', 'Left': 2923, 'Right': 2623},
+                            { 'time': '1/4', 'Left': 1723, 'Right': 1423},
+                            { 'time': '1/5', 'Left': 3792, 'Right': 3492},
+                            { 'time': '1/6', 'Left': 4593, 'Right': 4293}
+                        ]
+                    },
+                    extend: {
+                        legend: {
+                            textStyle: {color: '#fff'},
+                        },
+                        grid: {
+                            textStyle: {
+                                color: "#fff"
+                            },
+                            height:125
+                        },
+                        xAxis: {
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#fff'
+                                }
+                            }
+                        },
+                        yAxis: {
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#fff'
+                                }
+                            }
+                        }
+                    },
+                },
+                trainingEfficiency:{
+                    data:{
+                        columns: ['type', 'value'],
+                        rows: [
+                            { type: '训练效率', value: 80}
+                        ]
+                    },
+                    settings:{
+                        seriesMap:{
+                            '训练效率':{
+                                center:["50%", "50%"],
+                                radius:"100%",
+                                axisLine: {
+                                    show: true,
+                                    lineStyle: { // 属性lineStyle控制线条样式
+                                        color: [ //表盘颜色
+                                            [ 0.5, "#DA462C" ],//0-50%处的颜色
+                                            [ 0.7, "#FF9618" ],//51%-70%处的颜色
+                                            [ 0.9, "#FFED44" ],//70%-90%处的颜色
+                                            [ 1, "#20AE51" ]//90%-100%处的颜色
+                                        ],
+                                        shadowColor: '#fff',
+                                        hadowBlur: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                injuryRisk:{
+                    data:{
+                        columns: ['type', 'value'],
+                        rows: [
+                            { type: '损伤风险', value: 20}
+                        ]
+                    },
+                    settings:{
+                        seriesMap:{
+                            '损伤风险':{
+                                min:0,
+                                max:80,
+                                center:["50%", "50%"],
+                                radius:"100%",
+                                axisLine: {
+                                    show: true,
+                                    lineStyle: { // 属性lineStyle控制线条样式
+                                        color: [ //表盘颜色
+                                            [ 0.5, "#20AE51" ],//0-50%处的颜色
+                                            [ 0.7, "#FFED44" ],//51%-70%处的颜色
+                                            [ 0.9, "#FF9618" ],//70%-90%处的颜色
+                                            [ 1, "#DA462C"]//90%-100%处的颜色
+                                        ],
+                                        shadowColor: '#fff',
+                                        hadowBlur: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
         },
         mounted: function(){
-            
+            $('#runner').runner({  //计时器
+                autostart: false, //是否自动开始
+                milliseconds: false,  //是否显示毫秒表
+                format: function millisecondsToString(milliseconds) {
+                    var oneHour = 3600000;
+                    var oneMinute = 60000;
+                    var oneSecond = 1000;
+                    var seconds = 0;
+                    var minutes = 0;
+                    var hours = 0;
+                    var result;
+
+                    if (milliseconds >= oneHour) {
+                        hours = Math.floor(milliseconds / oneHour);
+                    }
+
+                    milliseconds = hours > 0 ? (milliseconds - hours * oneHour) : milliseconds;
+
+                    if (milliseconds >= oneMinute) {
+                        minutes = Math.floor(milliseconds / oneMinute);
+                    }
+
+                    milliseconds = minutes > 0 ? (milliseconds - minutes * oneMinute) : milliseconds;
+
+                    if (milliseconds >= oneSecond) {
+                        seconds = Math.floor(milliseconds / oneSecond);
+                    }
+
+                    milliseconds = seconds > 0 ? (milliseconds - seconds * oneSecond) : milliseconds;
+
+                    if (hours > 0) {
+                        result = (hours > 9 ? hours : "0" + hours) + ":";
+                    } else {
+                        result = "00:";
+                    }
+
+                    if (minutes > 0) {
+                        result += (minutes > 9 ? minutes : "0" + minutes) + ":";
+                    } else {
+                        result += "00:";
+                    }
+
+                    if (seconds > 0) {
+                        result += (seconds > 9 ? seconds : "0" + seconds);
+                    } else {
+                        result += "00";
+                    }
+
+                    return result;
+                }
+            });
             let unityUrl = /*[[@{/webGL/Receiver2D/Loader/Receiver2D.json}]]*/ 'Sebastian';
-            // this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
             this.getTrainingPlan();
 
             this.initCamera(); //初始化摄像头
@@ -339,7 +600,7 @@
                     dataType: 'json',
                     contentType : 'application/json',
                     data: JSON.stringify({
-                        userId: 22
+                        userId: 36
                     }),
                     type: 'POST',
                     success: function (data) {
@@ -362,11 +623,12 @@
             },
             transImage: function (video) {
                 let _this = this;
-                let canvas = document.getElementById('targetCanvas');
-//                let scale = 1; //缩放比例
-//                canvas.width = video.videoWidth * scale;
-//                canvas.height = video.videoHeight * scale;
-                canvas.getContext('2d').drawImage(video, 0, 0, 400, 300);
+                let canvas = document.createElement('canvas')
+                // let canvas = document.getElementById('targetCanvas');
+                let scale = 1; //缩放比例
+                canvas.width = video.videoWidth * scale;
+                canvas.height = video.videoWidth * scale;
+                canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
                     client.send(destination, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': _this.selectedMoveId}, image); //发送消息
@@ -394,6 +656,8 @@
                     _this.myTimer = setInterval(function(){
                         _this.transImage(document.querySelector('video'));
                     }, 500); //100ms发送一次
+                    $('#runner').runner('reset'); //计时器重置
+                    $('#runner').runner('start'); //计时器开始计时
                 } else {
                     _this.finishedTraining();
                 }
@@ -418,6 +682,7 @@
             finishedTraining:function () { //完成全部训练时的回调函数
                 let _this = this;
                 clearInterval(_this.myTimer); //停止图像传输
+                $('#runner').runner('stop'); //计时器停止计时
                 _this.button2.buttonType = 'success';
                 _this.trainingAdvice.isActive = false; //关闭训练建议可见
                 _this.$notify({

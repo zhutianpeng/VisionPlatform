@@ -105,7 +105,7 @@
         <div class="data-main">
             <div class="main-left">
                 <data-box :title="''" :dheight="800">
-                    <data-box :title="'操作面板'" :dheight="400" :icon="'account'" :boxb="false">
+                    <data-box :title="'操作面板'" :dheight="200" :icon="'account'" :boxb="false">
                         <div style="padding: 10%">
                             <form th:action="@{/ftpUpload}" method="post" enctype="multipart/form-data" id="videoSubmit" onsubmit="return submitVideo()">
                                 <p><input type="file" name="fileName"/></p>
@@ -116,8 +116,10 @@
                             <el-button type="danger" v-if="dataAvailable" @Click="stopPlaying">停止播放</el-button>
                         </div>
                     </data-box>
-                    <data-box :title="'数据展示区'" :dheight="400" :icon="'account'" :boxb="false">
-                        <ve-line></ve-line>
+                    <data-box :title="'数据展示区'" :dheight="600" :icon="'account'" :boxb="false">
+                        <data-box :title="'各关节点实时置信度'" :dheight="600" :icon="'account'" :boxb="false">
+                            <ve-bar :data="chartData" :extend="extend"></ve-bar>
+                        </data-box>
                     </data-box>
                 </data-box>
             </div>
@@ -166,6 +168,44 @@
     var offline3D = new Vue({
         el:'#offline3D',
         data:{
+            chartData: {
+                columns: ['关键点', '置信度'],
+                rows: [
+                    { '关键点': '头部', '置信度': 8 },
+                    { '关键点': '左肩', '置信度': 7 },
+                    { '关键点': '左手', '置信度': 7 },
+                    { '关键点': '右肩', '置信度': 8 },
+                    { '关键点': '右手', '置信度': 9 },
+                    { '关键点': '左膝', '置信度': 6 },
+                    { '关键点': '左脚', '置信度': 7 },
+                    { '关键点': '右膝', '置信度': 6 },
+                    { '关键点': '右脚', '置信度': 8 },
+                ]
+            },
+            extend: {
+                legend: {
+                    textStyle: {color: '#fff'},
+                },
+                grid: {
+                    textStyle: {
+                        color: "#fff"
+                    }
+                },
+                xAxis: {
+                    axisLine: {
+                        lineStyle: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                yAxis: {
+                    axisLine: {
+                        lineStyle: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            },
             gameInstance:'',
             mediaRecorder:'',
             chunks: [],
@@ -182,7 +222,7 @@
         mounted: function(){
             let unityUrl = /*[[@{/webGL/NewPoseV3/Loader/NewPoseV3.json}]]*/ 'Sebastian';
             this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-            this.initCamera(); //初始化摄像头
+            // this.initCamera(); //初始化摄像头
             // this.downloadData(); //拉取姿态数据（测试用）
             this.initWebSocket(); //初始化WebSocket
         },
