@@ -1,6 +1,8 @@
 package io.renren.imgProcess.config;
 
-import io.renren.imgProcess.service.redisService.FileMessageListener;
+
+import io.renren.imgProcess.service.redisService.MatchingMessageListener;
+import io.renren.imgProcess.service.redisService.Offline3DMessageListener;
 import io.renren.imgProcess.service.redisService.RealTime3DMessageListener;
 import io.renren.imgProcess.service.redisService.RealTime2DMessageListener;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,14 +62,16 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
              MessageListenerAdapter pose2DListenerAdapter,
              MessageListenerAdapter pose3DListenerAdapter,
-             MessageListenerAdapter fileListenerAdapter) {
+             MessageListenerAdapter offline3DListenerAdapter,
+             MessageListenerAdapter matchingResultListenerAdapter) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         //订阅通道，container 可以添加多个 messageListener
-        container.addMessageListener(pose2DListenerAdapter, new PatternTopic("yanchuangChannel"));
-        container.addMessageListener(pose3DListenerAdapter, new PatternTopic("outputChannel"));
-        container.addMessageListener(fileListenerAdapter, new PatternTopic("resultChannel"));
+        container.addMessageListener(pose2DListenerAdapter, new PatternTopic("2DOutputChannel")); //在线2D pose处理结果通道
+        container.addMessageListener(pose3DListenerAdapter, new PatternTopic("3DOutputChannel")); //在线3D pose处理结果通道
+        container.addMessageListener(offline3DListenerAdapter, new PatternTopic("resultChannel")); //离线视频3D pose处理完成通道
+        container.addMessageListener(matchingResultListenerAdapter, new PatternTopic("MatchingOutputChannel")); //DTW匹配结果通道
         return container;
     }
 
@@ -89,7 +93,12 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     }
 
     @Bean
-    MessageListenerAdapter fileListenerAdapter(FileMessageListener fileMessageListener){
-        return new MessageListenerAdapter(fileMessageListener, "onMessage");
+    MessageListenerAdapter offline3DListenerAdapter(Offline3DMessageListener offline3DMessageListener){
+        return new MessageListenerAdapter(offline3DMessageListener, "onMessage");
+    }
+
+    @Bean
+    MessageListenerAdapter matchingResultListenerAdapter(MatchingMessageListener matchingMessageListener){
+        return new MessageListenerAdapter(matchingMessageListener, "onMessage");
     }
 }

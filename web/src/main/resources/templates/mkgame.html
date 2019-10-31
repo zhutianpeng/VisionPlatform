@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>姿态分析展示平台</title>
+    <link rel="shortcut icon" th:href="@{/webGL/TemplateData/favicon.ico}">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script><!-- 引入vue框架 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
+    <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/global.scss}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/mkgame/styles.css}">
+
+    <script th:src="@{/js/common/movement.js}"></script><!-- 引入动作检测组件 -->
+    <script th:src="@{/js/common/mk.js}"></script>
+    <script th:src="@{/js/components/DataBox.js}"></script><!-- 引入DataBox组件 -->
+    <script th:src="@{/js/components/Common.js}"></script><!-- 引入组件 -->
+    <script th:src="@{/js/components/Exercise.js}"></script><!-- 用于健身指导功能的全部组件 -->
+    <script th:src="@{/js/components/Dance.js}"></script><!-- 用于动画舞蹈的全部组件 -->
+</head>
+<style th:inline="css">
+    .header {
+        width: 100%;
+        height: 160px;
+        padding: 0 20px;
+    }
+    .bg-header {
+        width: 100%;
+        height: 100%;
+        background: url("[[@{/img/title.png}]]") no-repeat;
+        background-size: 100% 100%;
+    }
+    .t-title {
+        width: 100%;
+        height: 50%;
+        text-align: center;
+        font-size: 2em;
+        line-height: 80px;
+        color: #fff;
+    }
+    .data-page{
+        background: url("[[@{/img/background.png}]]") no-repeat;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        height: 1250px;
+        min-width: 1220px;
+        background-size:100% 100%;
+    }
+    .data-content {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .data-main {
+        width: calc(100% - 40px);
+        margin-bottom: 40px;
+        margin-left: 20px;
+        height: 720px;}
+
+    .main-left{
+        width: 50%;
+        float: left;
+        padding: 0 10px 0 5px;
+    }
+
+    .main-right{
+        float: left;
+        width: 50%;
+        padding: 0 10px 0 5px;
+    }
+
+
+</style>
+<body>
+<div class="data-page" id="mkgame">
+    <div class="header">
+        <div class="bg-header">
+            <div class="t-title">Pose Estimation</div>
+            <div class="t-title">真人快打游戏</div>
+        </div>
+    </div>
+    <div class="data-content">
+
+        <div class="data-main">
+            <div class="main-left">
+                <data-box :title="'游戏画面'" :dheight="720">
+                    <div id="parent">
+                        <div id="utils">
+                            <div id="player1Name" class="playerName">Sub-Zero</div>
+                            <div id="player1LifeBar" class="lifebar"><div class="life" id="player1Life"></div></div>
+                            <div id="player2Name" class="playerName">Kano</div>
+                            <div id="player2LifeBar" class="lifebar"><div class="life" id="player2Life"></div></div>
+                        </div>
+                        <div id="arena">
+                        </div>
+                        <div id="loading">
+                            <span class="loadingLabel">Loading...</span>
+                        </div>
+                    </div>
+                </data-box>
+            </div>
+            <div class="main-right">
+                <data-box :title="'实时动作画面'" :dheight="720">
+                    <video id="webcam-parent" style="width: 100%; height: 100%; z-index: -10; position: absolute;left: 0; top: 0; object-fit: fill"  autoplay></video>
+                </data-box>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+    var mkgame = new Vue({
+        el:'#mkgame',
+        data:{
+            singlePoseData:'',
+
+            myTimer:'', //定时器
+        },
+        mounted: function(){
+            // this.movRecInit(); //初始化动作检测模块
+            this.initCamera(); //初始化摄像头
+            this.startGame();
+        },
+        methods:{
+            // movRecInit: function(){
+            //     Movement.init({
+            //         positionChanged: function (pos) {
+            //             if (pos === Movement.positions.LEFT) {
+            //                 console.log('←');
+            //             }
+            //             if (pos === Movement.positions.RIGHT) {
+            //                 console.log('→');
+            //             }
+            //         },
+            //         movementChanged: function (mov) { //TODO
+            //             if (mov === Movement.movements.RIGHT_LEG_UP || mov === Movement.movements.LEFT_LEG_UP) {
+            //
+            //                 console.log('踢腿检测！');
+            //             }
+            //             if (mov === Movement.movements.ARMS_UP) {
+            //                 console.log('出拳检测！');
+            //             }
+            //             // if (mov === Movement.movements.SQUAT){
+            //             //     console.log("下蹲检测！")
+            //             // }
+            //         }
+            //     });
+            // },
+            startGame:function(){
+                let _this = this;
+                let options = {
+                    arena: {
+                        container: document.getElementById('arena'),
+                        arena: mk.arenas.types.THRONE_ROOM
+                    },
+                    fighters: [{ name: 'Subzero' }, { name: 'Kano' }],
+                    callbacks: {
+                        attack: function (f, o, l) {
+                            if (o.getName() === 'kano') {
+                                _this.setLife(document.getElementById('player2Life'), o.getLife());
+                            } else {
+                                _this.setLife(document.getElementById('player1Life'), o.getLife());
+                            }
+                        }
+
+                    },
+                    isHost: false,
+                    // isHost: /^yes$/i.test(prompt('Are you going to be host?')),
+                    // gameName: prompt('Enter game name:'),
+                    // gameType: 'network'
+                };
+                mk.start(options).ready(function () {
+                    document.getElementById('loading').style.visibility = 'hidden';
+                    document.getElementById('arena').style.visibility = 'visible';
+                    document.getElementById('utils').style.visibility = 'visible';
+                });
+            },
+            initCamera:function(){
+                let _this = this;
+                let constraints = { video: true };
+                let video = document.querySelector('video');
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(function(mediaStream) {
+                        video.srcObject = mediaStream;
+                    })
+                    .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
+            },
+            setLife: function (container, life) { //设置生命值
+                container.style.width = life + '%';
+            },
+
+        },
+        components:{
+            dataBox:DataBox,
+            dataBoard: DataBoard, //用于健身指导的数据面板（左）
+            record:Record, //用于动画舞蹈的录制面板（左）
+            exeIntro:ExeIntro, //健身指导介绍（底部）
+            danceIntro: DanceIntro //动画舞蹈介绍（底部）
+        }
+    })
+</script>
+</body>
+</html>

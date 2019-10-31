@@ -290,9 +290,9 @@
                 console.log("WebSocket连接成功!");
             },
             onMessage: function(event){
-                if(event.data === "File Available"){ //3D数据准备完成可以进行拉取
-                   this.downloadData();
-                }
+                // if(event.data === "File Available"){ //3D数据准备完成可以进行拉取
+                //    this.downloadData();
+                // }
             },
             onError: function(){
                 console.log("WebSocket连接发生错误！");

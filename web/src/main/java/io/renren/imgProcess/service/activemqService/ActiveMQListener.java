@@ -157,7 +157,7 @@ public class ActiveMQListener {
                 imageData.put("image", base64Image);
 
                 JSONObject jsonObject = JSONObject.fromObject(imageData);
-                stringRedisTemplate.convertAndSend("inputChannel", jsonObject.toString());
+                stringRedisTemplate.convertAndSend("3DInputChannel", jsonObject.toString()); //发布内容，注意通道名称一致
 
                 //手动释放资源，不然会因为jedisPool里面的maxActive=200的限制，只能创建200个jedis资源。
                 jedis.close();

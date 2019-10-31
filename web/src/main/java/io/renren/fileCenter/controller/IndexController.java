@@ -43,4 +43,9 @@ public class IndexController {
     public String login(){
         return "login";
     }
+
+    @RequestMapping("/mkgame")
+    public String mkgame(){
+        return "mkgame";
+    }
 }
