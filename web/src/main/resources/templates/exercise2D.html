@@ -173,14 +173,14 @@
                                 <div>当前正在进行第<span style="font-weight: bold">{{trainingAdvice.currentGroup}}</span>组，
                                     已完成了<span style="font-weight: bold">{{trainingAdvice.finishedTime}}</span>次</div>
                                 <div>当前运动状态：</div>
-                                <div style="font-weight: bold">{{trainingAdvice.currentMoveState}}</div>
+                                <div style="font-weight: bold">{{trainingAdvice.currentMotionState}}</div>
                             </div>
                         </div>
                     </data-box>
 
                     <data-box :title="'上肢波动曲线'" :dheight="300" :boxb="false">
                         <video id="originalVideo" controls preload="auto" width="100%" height="100%">
-                            <source th:src="@{/video/test.mp4}" type="video/mp4">
+                            <source th:src="@{/video/aaa.mp4}" type="video/mp4">
                         </video>
 <!--                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.upperData"></ve-line>-->
                     </data-box>
@@ -280,13 +280,13 @@
             img.src = jsonData.image;
         }
 
-        //解析运动状态信息
-        if(jsonData.moveStage){
-            let moveStage = parseInt(jsonData.moveStage);
-            console.log("服务器传来的运动状态标记：" + moveStage);
-            exercise2D.trainingAdvice.currentMoveState = moveStateMapping[moveStage];
-            exercise2D.trainingAdvice.number = moveStage;
-        }
+        //解析运动状态信息 TODO
+        // if(jsonData.moveStage){
+        //     let moveStage = parseInt(jsonData.moveStage);
+        //     console.log("服务器传来的运动状态标记：" + moveStage);
+        //     exercise2D.trainingAdvice.currentMotionState = moveStateMapping[moveStage];
+        //     exercise2D.trainingAdvice.number = moveStage;
+        // }
 
     };
 
@@ -347,14 +347,13 @@
                 isActive: false, //是否可见，训练未开始时不可见
                 currentGroup:'', //当前第几组
                 finishedTime:'', //已完成了多少次
-                currentMoveState: '', //当前运动状态（提示语句）
+                currentMotionState: '', //当前运动状态（提示语句）
                 number: 0, //当前运动状态（数字）
                 perGroupDialog: false, //单组训练完成时的对话框显示
                 time:'', //剩余休息时间（用于倒计时）
                 score: 0 //运动评分，初始为0分
             },
             matchingFeedBack:{
-
             },
             drawer:{  //训练计划选择抽屉
                 isActive: false,
@@ -572,13 +571,13 @@
             this.initCamera(); //初始化摄像头
         },
         computed:{
-            getFinishedTime:function () {
+            getFinishedTime:function () { //获取当前动作完成的次数
                 return this.trainingAdvice.finishedTime;
             },
-            getCurrentGroup: function () {
+            getCurrentGroup: function () { //获取当前正在进行第几组训练
                 return this.trainingAdvice.currentGroup;
             },
-            getNumber:function () { //获取得到当前运动阶段
+            getNumber:function () { //获取当前运动阶段
                 return this.trainingAdvice.number;
             },
             getCurrentScore:function () { //获取当前评分
@@ -600,20 +599,24 @@
                     return item.moveInstanceId === newVal;
                 })[0];
             },
-            getFinishedTime: function (newVal) {
+            getFinishedTime: function (newVal) { //监听当前完成动作的次数
                 if(newVal >= this.selectedMove.timesPerGroup){
                     this.trainingAdvice.currentGroup ++;
                     this.trainingAdvice.finishedTime = 0;
                 }
             },
-            getCurrentGroup: function (newVal) {
-                if(newVal >= this.selectedMove.groupsPerRepeat){
+            getCurrentGroup: function (newVal) { //监听当前所进行的训练的组序
+                if(newVal > this.selectedMove.groupsPerRepeat){
                     this.finishedTraining();
                 }else if (newVal >= 2){
                     this.finishedSingleGroup();
                 }
             },
-            singlePoseData: function (newVal) { //监听姿态数据更新，驱动图表更新
+            getCurrentScore:function(newVal){ //监听当前分数，驱动分数仪表盘更新，并判断动作完成尚可/标准
+                let _this = this;
+                _this.charts.trainingEfficiency.data.rows[0].value = newVal;
+            },
+            singlePoseData: function (newVal) { //监听姿态数据更新，驱动上肢/下肢变化曲线更新
                 let _this = this;
                 if(typeof newVal[2]!="undefined" && typeof newVal[5]!="undefined"){ //上肢更新
                     let bodyFluctuate = {
@@ -641,48 +644,63 @@
                 }
 
             },
-            getNumber:function (oldValue, newValue) {
-                let _this = this;
-                console.log(newValue);
-                if(oldValue !== newValue + 1){ //发生中断时间即刻输出当前分数
-                    console.log("Pause!")
-                    _this.charts.trainingEfficiency.data.rows[0].value = _this.getCurrentScore;
-                    if(_this.getCurrentScore === 100){
-                        _this.charts.completeStatus.data.rows[0]['次数'] ++;
-                        _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
-                    }else if (_this.getCurrentScore === 75){
-                        _this.charts.completeStatus.data.rows[1]['次数'] ++;
-                        _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
-                    }else {
-                        _this.charts.completeStatus.data.rows[2]['次数'] ++;
-                        _this.charts.injuryRisk.data.rows[0].value =+ 5; //每当不合格次数出现一次，损伤风险增加5%
-                    }
-                    _this.trainingAdvice.score = 0; //归零
-                }else{
-                    console.log("+25")
-                    _this.trainingAdvice.score = _this.trainingAdvice.score + 25 ;
-                }
-            },
+            // getNumber:function (oldValue, newValue) { //监听暴力匹配算法反馈回来的运动阶段信息，暂不使用
+            //     let _this = this;
+            //     console.log(newValue);
+            //     if(oldValue !== newValue + 1){ //发生中断时间即刻输出当前分数
+            //         console.log("Pause!")
+            //         _this.charts.trainingEfficiency.data.rows[0].value = _this.getCurrentScore;
+            //         if(_this.getCurrentScore === 100){
+            //             _this.charts.completeStatus.data.rows[0]['次数'] ++;
+            //             _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
+            //         }else if (_this.getCurrentScore === 75){
+            //             _this.charts.completeStatus.data.rows[1]['次数'] ++;
+            //             _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
+            //         }else {
+            //             _this.charts.completeStatus.data.rows[2]['次数'] ++;
+            //             _this.charts.injuryRisk.data.rows[0].value =+ 5; //每当不合格次数出现一次，损伤风险增加5%
+            //         }
+            //         _this.trainingAdvice.score = 0; //归零
+            //     }else{
+            //         console.log("+25")
+            //         _this.trainingAdvice.score = _this.trainingAdvice.score + 25 ;
+            //     }
+            // },
             getBadComplete:function (newVal) { //监听不合格动作完成的次数，计算损伤风险 TODO
 
             },
-            matchingFeedBack: function (newVal) {
-                console.log(newVal);
+            matchingFeedBack: function (newVal) { //监听DTW匹配算法反馈的结果
+                let _this = this;
+                let state = JSON.parse(newVal).state;
+                let score =  JSON.parse(newVal).score; //解析得分情况
                 let myPlayer = document.getElementById('originalVideo');
-                switch (newVal.state) {
+                switch (state) {
                     case 0: //0代表做好准备动作，接下来开始运动
                         console.log("Starting...");
+                        _this.trainingAdvice.currentMotionState = "请按照视频进行运动";
                         myPlayer.play();
                         break;
                     case 1: //1代表没有做好准备动作
                         console.log("Waiting for preparation.");
+                        _this.trainingAdvice.currentMotionState = "请做好准备动作";
                         break;
-                    case 2: //2代表匹配通过
+                    case 2: //2代表匹配通过，并且有分数信息
                         console.log("Matching passed!");
+                        _this.trainingAdvice.score = score;
+                        if(score >= 75){
+                            _this.charts.completeStatus.data.rows[0]['次数'] ++;  //50-75区间为“尚可”
+                        }else if(score >= 50){
+                            _this.charts.completeStatus.data.rows[1]['次数'] ++;  //75-100区间为“标准”
+                        }
+                        _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
+                        _this.trainingAdvice.currentMotionState = "动作匹配通过";
                         myPlayer.pause();
                         break;
                     case 3: //
                         console.log("Matching failed.");
+                        _this.trainingAdvice.score = score; //解析得分情况
+                        _this.charts.completeStatus.data.rows[2]['次数'] ++;  //0-50区间为“不合格”
+                        _this.trainingAdvice.currentMotionState = "动作匹配失败";
                         myPlayer.pause();
                 }
             }
@@ -769,7 +787,8 @@
                 let _this = this;
                 clearInterval(_this.myTimer); //停止图像传输
                 $('#runner').runner('stop'); //计时器停止计时
-                _this.switchButton.buttonType = 'success';
+                _this.switchButton.buttonType = 'success'; //按钮状态变更
+                _this.switchButton.state = false;
                 _this.trainingAdvice.isActive = false; //关闭训练建议可见
                 _this.$notify({
                     title: '辛苦了！',
