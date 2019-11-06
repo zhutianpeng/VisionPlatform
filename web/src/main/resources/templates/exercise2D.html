@@ -163,8 +163,8 @@
                             </el-button>
                         </div>
                     </data-box>
-                    <data-box :title="'训练指导建议'" :dheight="200" :boxb="false">
-                        <div style="color: white; margin-left: 10px; font-size: 20px">
+                    <data-box :title="'训练指导建议'" :dheight="230" :boxb="false">
+                        <div style="color: white; margin-left: 10px; margin-right: 10px;font-size: 20px">
                             <div>所选训练动作：<span style="font-weight: bold">{{selectedMove.movetypeName}}</span></div>
                             <div>需要进行<span style="font-weight: bold">{{selectedMove.groupsPerRepeat}}</span>组，
                                 每组<span style="font-weight: bold">{{selectedMove.timesPerGroup}}</span>次，
@@ -172,20 +172,21 @@
                             <div v-if="trainingAdvice.isActive">
                                 <div>当前正在进行第<span style="font-weight: bold">{{trainingAdvice.currentGroup}}</span>组，
                                     已完成了<span style="font-weight: bold">{{trainingAdvice.finishedTime}}</span>次</div>
-                                <div>当前运动状态：</div>
-                                <div style="font-weight: bold">{{trainingAdvice.currentMotionState}}</div>
+                                <br>
+                                <el-alert style="font-weight: bold;" :title="trainingAdvice.hintWords.title" :type="trainingAdvice.hintWords.type" :closable="false" show-icon>
+                                </el-alert>
+<!--                                <div style="font-weight: bold">请做好准备动作 {{trainingAdvice.currentMotionState}}</div>-->
                             </div>
                         </div>
                     </data-box>
 
-                    <data-box :title="'上肢波动曲线'" :dheight="300" :boxb="false">
+                    <data-box :title="'标准动作视频'" :dheight="300" :boxb="false">
                         <video id="originalVideo" controls preload="auto" width="100%" height="100%">
                             <source th:src="@{/video/aaa.mp4}" type="video/mp4">
                         </video>
-<!--                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.upperData"></ve-line>-->
                     </data-box>
-                    <data-box :title="'下肢波动曲线'" :dheight="300" :boxb="false">
-                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.lowerData"></ve-line>
+                    <data-box :title="'肢体波动曲线'" :dheight="300" :boxb="false">
+                        <ve-line height="100%" :extend="charts.bodyFluctuate.extend" :data="charts.bodyFluctuate.data"></ve-line>
                     </data-box>
                 </data-box>
 
@@ -242,14 +243,28 @@
     //     "13": 6
     // };
 
-    const moveStateMapping = {
-        0:"准备阶段，请摆出准备姿态",
-        1:"运动阶段，请开始运动达到预期姿态",
-        2:"保持阶段，请保持该姿态",
-        3:"恢复阶段，请恢复到准备姿态",
-        4:"单次动作训练完成！",
-    };
+    // const moveStateMapping = {
+    //     0:"准备阶段，请摆出准备姿态",
+    //     1:"运动阶段，请开始运动达到预期姿态",
+    //     2:"保持阶段，请保持该姿态",
+    //     3:"恢复阶段，请恢复到准备姿态",
+    //     4:"单次动作训练完成！",
+    // };
 
+    //训练提示语句模板
+    const hintWordMode = [{
+        title:'请跟随视频运动',
+        type:'info'
+    },{
+        title:'请做好准备动作',
+        type:'warning'
+    },{
+        title:'动作匹配成功',
+        type:'success'
+    },{
+        title:'动作匹配失败',
+        type:'error'
+    }];
     var client = Stomp.client(url); //TODO 暂时关闭
 
     var stompOnMessage2D = function (message) {
@@ -325,7 +340,7 @@
                 image:'',
                 task:1
             },
-            myTimer:'', //定时器
+            imageTransTimer:'', //控制图像传输的定时其
             poseData:{},
             trainingList:[], //该用户的所有训练计划
             trainingId:'', //用户选择的训练计划ID
@@ -351,7 +366,8 @@
                 number: 0, //当前运动状态（数字）
                 perGroupDialog: false, //单组训练完成时的对话框显示
                 time:'', //剩余休息时间（用于倒计时）
-                score: 0 //运动评分，初始为0分
+                score: 0, //运动评分，初始为0分
+                hintWords: hintWordMode[2] //训练提示语句
             },
             matchingFeedBack:{
             },
@@ -417,13 +433,9 @@
                     }
                 },
                 bodyFluctuate:{
-                    upperData:{
-                        columns: ['time', 'leftShoulder', 'rightShoulder'],
-                        rows: new Array(10)
-                    },
-                    lowerData:{
-                        columns: ['time', 'leftLeg', 'rightLeg'],
-                        rows: new Array(10)
+                    data:{
+                        columns: ['time', 'leftShoulder', 'rightShoulder', 'leftLeg', 'rightLeg'],
+                        rows: new Array(20)
                     },
                     extend: {
                         legend: {
@@ -585,6 +597,9 @@
             },
             getBadComplete:function () { //获取不合格的次数
                 return this.charts.completeStatus.data.rows[2]['次数']
+            },
+            getSwitchButtonState:function () { //获取图像传输按钮的状态
+                return this.switchButton.state;
             }
         },
         watch:{
@@ -618,31 +633,23 @@
             },
             singlePoseData: function (newVal) { //监听姿态数据更新，驱动上肢/下肢变化曲线更新
                 let _this = this;
-                if(typeof newVal[2]!="undefined" && typeof newVal[5]!="undefined"){ //上肢更新
+                if(typeof newVal[3]!="undefined" && typeof newVal[6]!="undefined" && typeof newVal[8]!="undefined" && typeof newVal[11]!="undefined"){ //上肢更新
                     let bodyFluctuate = {
                         "time": new Date().getMilliseconds().toString(), //TODO
                         "leftShoulder": newVal[3].y,
-                        "rightShoulder": newVal[6].y
-                    };
-                    _this.charts.bodyFluctuate.upperData.rows.shift(); //删除第一个元素
-                    _this.charts.bodyFluctuate.upperData.rows.push(bodyFluctuate); //将新数据加入末尾
-                }
-                if(typeof newVal[8]!="undefined" && typeof newVal[11]!="undefined"){ //下肢更新
-                    let bodyFluctuate = {
-                        "time": new Date().getMilliseconds().toString(), //TODO
+                        "rightShoulder": newVal[6].y,
                         "leftLeg": newVal[8].y,
                         "rightLeg": newVal[11].y
                     };
-                    _this.charts.bodyFluctuate.lowerData.rows.shift(); //删除第一个元素
-                    _this.charts.bodyFluctuate.lowerData.rows.push(bodyFluctuate); //将新数据加入末尾
+                    _this.charts.bodyFluctuate.data.rows.shift(); //删除第一个元素
+                    _this.charts.bodyFluctuate.data.rows.push(bodyFluctuate); //将新数据加入末尾
                 }
-                _this.unityIsActive = typeof newVal[9]!= "undefined" && typeof newVal[12]!= "undefined" && typeof newVal[3]!= "undefined" && typeof newVal[6]!= "undefined"; //如果9和12都存在的情况下，激活Unity的更新
+                _this.unityIsActive = typeof newVal[9]!= "undefined" && typeof newVal[12]!= "undefined" && typeof newVal[3]!= "undefined" && typeof newVal[6]!= "undefined"; //如果9、12、3、6都存在的情况下，激活Unity的更新
             },
             singlePoseDataForUnity: function(newVal){
                 if(this.unityIsActive){ //仅当激活状态下才能发送
                     exercise2D.gameInstance.SendMessage("EmptyObject", "RealTime3DOnMessage", newVal); //调用Unity内部方法，将姿态数据传入
                 }
-
             },
             // getNumber:function (oldValue, newValue) { //监听暴力匹配算法反馈回来的运动阶段信息，暂不使用
             //     let _this = this;
@@ -666,26 +673,36 @@
             //         _this.trainingAdvice.score = _this.trainingAdvice.score + 25 ;
             //     }
             // },
-            getBadComplete:function (newVal) { //监听不合格动作完成的次数，计算损伤风险 TODO
-
+            getSwitchButtonState:function(newVal){ //监听传输按钮的状态
+                let _this = this;
+                if(newVal){ //激活图像传输
+                    _this.switchButton.buttonType = 'danger'; //按钮状态变更：红色“停止训练”
+                    $('#runner').runner('start'); //计时器开始计时
+                    _this.imageTransTimer = setInterval(function(){
+                        _this.transImage(document.querySelector('video'));
+                    }, 50); //100ms发送一次
+                }else{
+                    _this.switchButton.buttonType = 'success'; //按钮状态变更：绿色“开始训练”
+                    $('#runner').runner('stop'); //计时器停止计时
+                    clearInterval(_this.imageTransTimer); //停止图像传输
+                }
             },
             matchingFeedBack: function (newVal) { //监听DTW匹配算法反馈的结果
                 let _this = this;
                 let state = JSON.parse(newVal).state;
                 let score =  JSON.parse(newVal).score; //解析得分情况
                 let myPlayer = document.getElementById('originalVideo');
+                _this.trainingAdvice.hintWords = hintWordMode[state]; //填充提示语句
                 switch (state) {
                     case 0: //0代表做好准备动作，接下来开始运动
-                        console.log("Starting...");
-                        _this.trainingAdvice.currentMotionState = "请按照视频进行运动";
+                        // console.log("Starting...");
                         myPlayer.play();
                         break;
                     case 1: //1代表没有做好准备动作
-                        console.log("Waiting for preparation.");
-                        _this.trainingAdvice.currentMotionState = "请做好准备动作";
+                        // console.log("Waiting for preparation.");
                         break;
                     case 2: //2代表匹配通过，并且有分数信息
-                        console.log("Matching passed!");
+                        // console.log("Matching passed!");
                         _this.trainingAdvice.score = score;
                         if(score >= 75){
                             _this.charts.completeStatus.data.rows[0]['次数'] ++;  //50-75区间为“尚可”
@@ -693,15 +710,21 @@
                             _this.charts.completeStatus.data.rows[1]['次数'] ++;  //75-100区间为“标准”
                         }
                         _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
-                        _this.trainingAdvice.currentMotionState = "动作匹配通过";
                         myPlayer.pause();
+                        _this.switchButton.state = false; //停止图像传输
+                        setTimeout(function () {
+                            _this.switchButton.state = true;
+                        }, 3000); //停止数秒后恢复传输，方便用户跟踪结果/算法侧有反应时间
                         break;
-                    case 3: //
-                        console.log("Matching failed.");
+                    case 3: //3代表匹配失败
+                        // console.log("Matching failed.");
                         _this.trainingAdvice.score = score; //解析得分情况
                         _this.charts.completeStatus.data.rows[2]['次数'] ++;  //0-50区间为“不合格”
-                        _this.trainingAdvice.currentMotionState = "动作匹配失败";
                         myPlayer.pause();
+                        _this.switchButton.state = false; //停止图像传输
+                        setTimeout(function () {
+                            _this.switchButton.state = true;
+                        }, 3000); //停止几秒后恢复传输
                 }
             }
         },
@@ -743,53 +766,40 @@
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 let image = canvas.toDataURL('image/jpeg');
                 if (image != null) {
-                    client.send(destination1, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': _this.selectedMoveId}, image); //发送消息
+                    // client.send(destination1, {'userToken': userToken, 'task': 0x01, 'time': new Date().getTime(), 'moveId': _this.selectedMoveId}, image); //发送消息
                     client.send(destination2, {'userToken': userToken}, image); //发送消息
                 }
             },
             switchState:function () { //按钮调用，用于开启或终止训练（切换状态）
                 let _this = this;
-                _this.trainingAdvice.isActive = true; //使得训练建议可见
+                _this.trainingAdvice.isActive = !_this.switchButton.state; //训练建议可见性改变
+                if(!_this.switchButton.state){ //从停止状态到开始状态，说明用户开启了新一轮的训练
+                    $('#runner').runner('reset'); //计时器重置归零
+                }
+                _this.switchButton.state = !_this.switchButton.state;
                 _this.trainingAdvice.currentGroup = 1;
                 _this.trainingAdvice.finishedTime = 0;
-                _this.switchButton.state = !_this.switchButton.state;
-                // debugger
-                if(_this.switchButton.state){
-                    _this.switchButton.buttonType = 'danger';
-                    _this.myTimer = setInterval(function(){
-                        _this.transImage(document.querySelector('video'));
-                    }, 100); //100ms发送一次
-                    $('#runner').runner('reset'); //计时器重置
-                    $('#runner').runner('start'); //计时器开始计时
-                } else {
-                    // debugger
-                    _this.finishedTraining();
-                }
+
             },
-            finishedSingleGroup: function() { //完成单次训练时的回调函数
+            finishedSingleGroup: function() { //完成一组训练时的回调函数
                 let _this = this;
-                clearInterval(_this.myTimer); //停止图像传输
                 _this.trainingAdvice.time = _this.selectedMove.restBetweenGroup;
                 _this.trainingAdvice.perGroupDialog = true; //弹出对话框提示
+                _this.switchButton.state = false; //停止传输
                 let timer = setInterval(function() {
                     if(_this.trainingAdvice.time > 0){
                         _this.trainingAdvice.time --;
                     }else{ //倒计时结束
                         _this.trainingAdvice.perGroupDialog = false; //关闭对话框提示
                         clearInterval(timer);
-                        _this.myTimer = setInterval(function(){
-                            _this.transImage(document.querySelector('video'));
-                        }, 100); //重新开启图像传输
+                        _this.switchButton.state = true; //重新开启图像传输
                     }
-                }, 1000);
+                }, 1000); //倒计时，每秒执行一次
             },
             finishedTraining:function () { //完成全部训练时的回调函数
                 let _this = this;
-                clearInterval(_this.myTimer); //停止图像传输
-                $('#runner').runner('stop'); //计时器停止计时
-                _this.switchButton.buttonType = 'success'; //按钮状态变更
                 _this.switchButton.state = false;
-                _this.trainingAdvice.isActive = false; //关闭训练建议可见
+                _this.trainingAdvice.isActive = false; //训练建议不可见
                 _this.$notify({
                     title: '辛苦了！',
                     message: '训练到此结束',
