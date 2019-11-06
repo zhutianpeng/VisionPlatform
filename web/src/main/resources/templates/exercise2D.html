@@ -173,7 +173,8 @@
                                 <div>当前正在进行第<span style="font-weight: bold">{{trainingAdvice.currentGroup}}</span>组，
                                     已完成了<span style="font-weight: bold">{{trainingAdvice.finishedTime}}</span>次</div>
                                 <br>
-                                <el-alert style="font-weight: bold;" :title="trainingAdvice.hintWords.title" :type="trainingAdvice.hintWords.type" :closable="false" show-icon>
+                                <el-alert :type="trainingAdvice.hintWords.type" :closable="false" show-icon>
+                                    <span style="font-size: 35px; font-weight: bold">{{trainingAdvice.hintWords.title}}</span>
                                 </el-alert>
 <!--                                <div style="font-weight: bold">请做好准备动作 {{trainingAdvice.currentMotionState}}</div>-->
                             </div>
