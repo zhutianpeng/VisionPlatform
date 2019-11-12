@@ -134,14 +134,12 @@
 <!--                    </el-card>-->
 <!--                </data-box>-->
                 <data-box :title="'实时估计画面'" :dheight="720">
-<!--                    <div style="text-align: center;width: 100%; height: 100%;">-->
                         <img id="targetImg" height="100%" width="100%"/>
                         <video style="width: 100%; height: 100%; z-index: -10; position: absolute;left: 0; top: 0; object-fit: fill"  autoplay></video>
-<!--                    </div>-->
                 </data-box>
                 <data-box :title="''" :dheight="250" style="margin-top: 10px">
                     <data-box :title="'当前评分情况'" :dheight="250" :boxb="false" style="width: 33%; float: left; text-align: center">
-                        <ve-gauge height="100%" :data="charts.trainingEfficiency.data" :settings="charts.trainingEfficiency.settings"></ve-gauge>
+                        <ve-gauge height="100%" :data="charts.trainingScore.data" :settings="charts.trainingScore.settings"></ve-gauge>
                     </data-box>
                     <data-box :title="'损伤风险'" :dheight="250" :boxb="false" style="width: 33%; float: left; text-align: center">
                         <ve-gauge height="100%" :data="charts.injuryRisk.data" :settings="charts.injuryRisk.settings"></ve-gauge>
@@ -266,7 +264,8 @@
         title:'动作匹配失败',
         type:'error'
     }];
-    var client = Stomp.client(url); //TODO 暂时关闭
+
+    var client = Stomp.client(url);
 
     var stompOnMessage2D = function (message) {
         let jsonData = JSON.parse(message.body); //接收数据JSON示例：{'image':'', 'poseResultParsed':''}
@@ -275,19 +274,6 @@
         if (jsonData.poseResultParsed) {
             let poseArray = JSON.parse(jsonData.poseResultParsed); //单帧二维坐标数据
             exercise2D.singlePoseData = poseArray[0]; //更新singlePoseData示例：{0: {x: 1, y:2, confidence:3}}
-
-            // let singleArray = [];
-            // for (let key in singlePerson) {
-            //     if (pointMapping[key]) { //进行映射之后的关节点index，如果在定义范围内则进行写入（注意14以后的坐标点都没有用到）
-            //         singleArray.push(pointMapping[key]);
-            //         singleArray.push(200 - singlePerson[key].x);
-            //         singleArray.push(300 - singlePerson[key].y);
-            //     }
-            // }
-            // if (singleArray) { //数据不为空
-            //     console.log(singleArray.toString());
-            //     // exercise2D.gameInstance.SendMessage("BoxUnityChan", "GetPose", singleArray.toString()); //调用Unity内部方法，将姿态数据传入
-            // }
         }
 
         //解析图像
@@ -303,7 +289,6 @@
         //     exercise2D.trainingAdvice.currentMotionState = moveStateMapping[moveStage];
         //     exercise2D.trainingAdvice.number = moveStage;
         // }
-
     };
 
     var stompOnMessage3D = function (message) {
@@ -332,17 +317,13 @@
     var exercise2D = new Vue({
         el:'#exercise2D',
         data:{
-            gameInstance:'',
             singlePoseData:'',
             singlePoseDataForUnity:'',
-            unityIsActive: false,
-            sendMsg:{
-                userToken:'123',
-                image:'',
-                task:1
+            unity:{
+                gameInstance:'',
+                isActive: false
             },
-            imageTransTimer:'', //控制图像传输的定时其
-            poseData:{},
+            imageTransTimer:'', //控制图像传输定时器
             trainingList:[], //该用户的所有训练计划
             trainingId:'', //用户选择的训练计划ID
             training:{}, //用户选择的训练计划
@@ -367,8 +348,9 @@
                 number: 0, //当前运动状态（数字）
                 perGroupDialog: false, //单组训练完成时的对话框显示
                 time:'', //剩余休息时间（用于倒计时）
-                score: 0, //运动评分，初始为0分
-                hintWords: hintWordMode[2] //训练提示语句
+                currentScore: 0, //当前运动评分，初始为0分
+                historyScoreList:[], //历史得分记录列表
+                hintWords: hintWordMode[1] //训练提示语句，默认是准备状态
             },
             matchingFeedBack:{
             },
@@ -464,7 +446,7 @@
                         }
                     },
                 },
-                trainingEfficiency:{
+                trainingScore:{
                     data:{
                         columns: ['type', 'value'],
                         rows: [
@@ -527,60 +509,9 @@
             },
         },
         mounted: function(){
-            $('#runner').runner({  //计时器
-                autostart: false, //是否自动开始
-                milliseconds: false,  //是否显示毫秒表
-                format: function millisecondsToString(milliseconds) {
-                    var oneHour = 3600000;
-                    var oneMinute = 60000;
-                    var oneSecond = 1000;
-                    var seconds = 0;
-                    var minutes = 0;
-                    var hours = 0;
-                    var result;
-
-                    if (milliseconds >= oneHour) {
-                        hours = Math.floor(milliseconds / oneHour);
-                    }
-
-                    milliseconds = hours > 0 ? (milliseconds - hours * oneHour) : milliseconds;
-
-                    if (milliseconds >= oneMinute) {
-                        minutes = Math.floor(milliseconds / oneMinute);
-                    }
-
-                    milliseconds = minutes > 0 ? (milliseconds - minutes * oneMinute) : milliseconds;
-
-                    if (milliseconds >= oneSecond) {
-                        seconds = Math.floor(milliseconds / oneSecond);
-                    }
-
-                    milliseconds = seconds > 0 ? (milliseconds - seconds * oneSecond) : milliseconds;
-
-                    if (hours > 0) {
-                        result = (hours > 9 ? hours : "0" + hours) + ":";
-                    } else {
-                        result = "00:";
-                    }
-
-                    if (minutes > 0) {
-                        result += (minutes > 9 ? minutes : "0" + minutes) + ":";
-                    } else {
-                        result += "00:";
-                    }
-
-                    if (seconds > 0) {
-                        result += (seconds > 9 ? seconds : "0" + seconds);
-                    } else {
-                        result += "00";
-                    }
-
-                    return result;
-                }
-            });
-            let unityUrl = /*[[@{/webGL/Demo/Loader/Demo.json}]]*/ 'Sebastian';
-            this.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
-            this.getTrainingPlan();
+            this.initTrainRunner();
+            this.initUnity();
+            this.getTrainingPlan(); //从后台拉取训练计划
             this.initCamera(); //初始化摄像头
         },
         computed:{
@@ -594,10 +525,10 @@
                 return this.trainingAdvice.number;
             },
             getCurrentScore:function () { //获取当前评分
-                return this.trainingAdvice.score;
+                return this.trainingAdvice.currentScore;
             },
-            getBadComplete:function () { //获取不合格的次数
-                return this.charts.completeStatus.data.rows[2]['次数']
+            getHistoryScoreList:function(){
+                return this.trainingAdvice.historyScoreList;
             },
             getSwitchButtonState:function () { //获取图像传输按钮的状态
                 return this.switchButton.state;
@@ -628,9 +559,21 @@
                     this.finishedSingleGroup();
                 }
             },
-            getCurrentScore:function(newVal){ //监听当前分数，驱动分数仪表盘更新，并判断动作完成尚可/标准
+            getCurrentScore:function(newVal){ //监听当前分数，驱动分数仪表盘更新
                 let _this = this;
-                _this.charts.trainingEfficiency.data.rows[0].value = newVal;
+                _this.charts.trainingScore.data.rows[0].value = newVal;
+            },
+            getHistoryScoreList:function(newVal){
+                let _this = this;
+                let currentScore = newVal[newVal.length - 1];
+                _this.trainingAdvice.currentScore = currentScore; //更新当前分数
+                if(currentScore >= 80){
+                    _this.charts.completeStatus.data.rows[0]['次数'] ++;  //“尚可”动作区间
+                }else if(currentScore >= 60){
+                    _this.charts.completeStatus.data.rows[1]['次数'] ++;  //“标准”动作区间
+                }else{
+                    _this.charts.completeStatus.data.rows[2]['次数'] ++;  //“不合格”动作区间
+                }
             },
             singlePoseData: function (newVal) { //监听姿态数据更新，驱动上肢/下肢变化曲线更新
                 let _this = this;
@@ -645,11 +588,11 @@
                     _this.charts.bodyFluctuate.data.rows.shift(); //删除第一个元素
                     _this.charts.bodyFluctuate.data.rows.push(bodyFluctuate); //将新数据加入末尾
                 }
-                _this.unityIsActive = typeof newVal[9]!= "undefined" && typeof newVal[12]!= "undefined" && typeof newVal[3]!= "undefined" && typeof newVal[6]!= "undefined"; //如果9、12、3、6都存在的情况下，激活Unity的更新
+                _this.unity.isActive = typeof newVal[9]!= "undefined" && typeof newVal[12]!= "undefined" && typeof newVal[3]!= "undefined" && typeof newVal[6]!= "undefined"; //如果9、12、3、6都存在的情况下，激活Unity的更新
             },
             singlePoseDataForUnity: function(newVal){
-                if(this.unityIsActive){ //仅当激活状态下才能发送
-                    exercise2D.gameInstance.SendMessage("EmptyObject", "RealTime3DOnMessage", newVal); //调用Unity内部方法，将姿态数据传入
+                if(this.unity.isActive){ //仅当激活状态下才能发送
+                    exercise2D.unity.gameInstance.SendMessage("EmptyObject", "RealTime3DOnMessage", newVal); //调用Unity内部方法，将姿态数据传入
                 }
             },
             // getNumber:function (oldValue, newValue) { //监听暴力匹配算法反馈回来的运动阶段信息，暂不使用
@@ -657,7 +600,7 @@
             //     console.log(newValue);
             //     if(oldValue !== newValue + 1){ //发生中断时间即刻输出当前分数
             //         console.log("Pause!")
-            //         _this.charts.trainingEfficiency.data.rows[0].value = _this.getCurrentScore;
+            //         _this.charts.trainingScore.data.rows[0].value = _this.getCurrentScore;
             //         if(_this.getCurrentScore === 100){
             //             _this.charts.completeStatus.data.rows[0]['次数'] ++;
             //             _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
@@ -701,35 +644,87 @@
                         break;
                     case 1: //1代表没有做好准备动作
                         // console.log("Waiting for preparation.");
+                        myPlayer.pause();
                         break;
                     case 2: //2代表匹配通过，并且有分数信息
                         // console.log("Matching passed!");
-                        _this.trainingAdvice.score = score;
-                        if(score >= 75){
-                            _this.charts.completeStatus.data.rows[0]['次数'] ++;  //50-75区间为“尚可”
-                        }else if(score >= 50){
-                            _this.charts.completeStatus.data.rows[1]['次数'] ++;  //75-100区间为“标准”
-                        }
+                        _this.trainingAdvice.historyScoreList.push(score); //分数录入历史
                         _this.trainingAdvice.finishedTime ++; //动作已完成次数加一
                         myPlayer.pause();
-                        _this.switchButton.state = false; //停止图像传输
-                        setTimeout(function () {
-                            _this.switchButton.state = true;
-                        }, 3000); //停止数秒后恢复传输，方便用户跟踪结果/算法侧有反应时间
+                        // _this.switchButton.state = false; //停止图像传输
+                        // setTimeout(function () {
+                        //     _this.switchButton.state = true;
+                        // }, 3000); //停止数秒后恢复传输，方便用户跟踪结果/算法侧有反应时间
                         break;
                     case 3: //3代表匹配失败
                         // console.log("Matching failed.");
-                        _this.trainingAdvice.score = score; //解析得分情况
-                        _this.charts.completeStatus.data.rows[2]['次数'] ++;  //0-50区间为“不合格”
+                        _this.trainingAdvice.historyScoreList.push(score); //分数录入历史
                         myPlayer.pause();
-                        _this.switchButton.state = false; //停止图像传输
-                        setTimeout(function () {
-                            _this.switchButton.state = true;
-                        }, 3000); //停止几秒后恢复传输
+                        // _this.switchButton.state = false; //停止图像传输
+                        // setTimeout(function () {
+                        //     _this.switchButton.state = true;
+                        // }, 3000); //停止数秒后恢复传输
                 }
             }
         },
         methods:{
+            initUnity:function(){ //Unity初始化
+                let unityUrl = /*[[@{/webGL/Demo/Loader/Demo.json}]]*/ 'Sebastian';
+                this.unity.gameInstance = UnityLoader.instantiate("gameContainer", unityUrl, {onProgress: UnityProgress});
+            },
+            initTrainRunner:function(){ //训练用时计时器初始化
+                $('#runner').runner({  //计时器
+                    autostart: false, //是否自动开始
+                    milliseconds: false,  //是否显示毫秒表
+                    format: function millisecondsToString(milliseconds) {
+                        var oneHour = 3600000;
+                        var oneMinute = 60000;
+                        var oneSecond = 1000;
+                        var seconds = 0;
+                        var minutes = 0;
+                        var hours = 0;
+                        var result;
+
+                        if (milliseconds >= oneHour) {
+                            hours = Math.floor(milliseconds / oneHour);
+                        }
+
+                        milliseconds = hours > 0 ? (milliseconds - hours * oneHour) : milliseconds;
+
+                        if (milliseconds >= oneMinute) {
+                            minutes = Math.floor(milliseconds / oneMinute);
+                        }
+
+                        milliseconds = minutes > 0 ? (milliseconds - minutes * oneMinute) : milliseconds;
+
+                        if (milliseconds >= oneSecond) {
+                            seconds = Math.floor(milliseconds / oneSecond);
+                        }
+
+                        milliseconds = seconds > 0 ? (milliseconds - seconds * oneSecond) : milliseconds;
+
+                        if (hours > 0) {
+                            result = (hours > 9 ? hours : "0" + hours) + ":";
+                        } else {
+                            result = "00:";
+                        }
+
+                        if (minutes > 0) {
+                            result += (minutes > 9 ? minutes : "0" + minutes) + ":";
+                        } else {
+                            result += "00:";
+                        }
+
+                        if (seconds > 0) {
+                            result += (seconds > 9 ? seconds : "0" + seconds);
+                        } else {
+                            result += "00";
+                        }
+
+                        return result;
+                    }
+                });
+            },
             getTrainingPlan:function(){ //拉取该用户的所有训练计划
                 let _this = this;
                 let postUrl = /*[[@{/api/getTrainingFromJson}]]*/ 'Sebastian';
@@ -807,7 +802,6 @@
                     type: 'success'
                 });
             },
-
         },
         components:{
             dataBox:DataBox,
