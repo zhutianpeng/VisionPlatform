@@ -168,4 +168,32 @@ public class ActiveMQListener {
         }
     }
 
+    @JmsListener(destination = "riskBehaviourInput", containerFactory = "queueListenerFactory")
+    public void riskBehaviourOnMessage(Message message) {
+        if (message instanceof BytesMessage) {
+            BytesMessage bytesMessage = (BytesMessage)message;
+            try {
+                String base64Image ="";                                            //原始图像
+                byte[] buffer = new byte[1024*1024];
+                int len = 0;
+                while((len = bytesMessage.readBytes(buffer)) != -1){
+                    base64Image = new String(buffer,0, len);
+                }
+                Jedis jedis = jedisPool.getResource();
+
+                Map<String,String> imageData = new HashMap<String, String>();
+                imageData.put("image", base64Image);
+
+                JSONObject jsonObject = JSONObject.fromObject(imageData);
+                stringRedisTemplate.convertAndSend("RiskBehaviourInput", jsonObject.toString()); //发布内容，注意通道名称一致
+
+                //手动释放资源，不然会因为jedisPool里面的maxActive=200的限制，只能创建200个jedis资源。
+                jedis.close();
+
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

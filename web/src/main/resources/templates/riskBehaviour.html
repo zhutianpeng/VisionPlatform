@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>姿态分析展示平台</title>
+    <link rel="shortcut icon" th:href="@{/webGL/TemplateData/favicon.ico}">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script><!-- 引入vue框架 -->
+    <!--<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>-->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script><!-- 引入element组件库 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><!-- 引入element样式 -->
+    <script th:src="@{/js/common/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/js/common/jquery.runner.js}"></script> <!-- jquery计时器插件 -->
+<!--    <script th:src="@{/webGL/Demo/TemplateData/UnityProgress.js}"></script>-->
+<!--    <script th:src="@{/webGL/Demo/Loader/UnityLoader.js}"></script>-->
+    <link rel="stylesheet" th:href="@{/webGL/Demo/TemplateData/style.css}">
+    <!--    <script th:src="@{/webGL/Receiver2D/TemplateData/UnityProgress.js}"></script>-->
+    <!--    <script th:src="@{/webGL/Receiver2D/Loader/UnityLoader.js}"></script>-->
+    <!--    <link rel="stylesheet" th:href="@{/webGL/Receiver2D/TemplateData/style.css}">-->
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script><!--引入echarts组件-->
+    <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/global.scss}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <script type="text/javascript" th:src="@{/js/common/stomp.js}"></script>
+    <script th:src="@{/js/components/DataBox.js}"></script><!-- 引入DataBox组件 -->
+    <script th:src="@{/js/components/Common.js}"></script><!-- 引入组件 -->
+    <script th:src="@{/js/components/Exercise.js}"></script><!-- 用于健身指导功能的全部组件 -->
+    <script th:src="@{/js/components/Dance.js}"></script><!-- 用于动画舞蹈的全部组件 -->
+</head>
+<style th:inline="css">
+    .header {
+        width: 100%;
+        height: 160px;
+        padding: 0 20px;
+    }
+    .bg-header {
+        width: 100%;
+        height: 100%;
+        background: url("[[@{/img/title.png}]]") no-repeat;
+        background-size: 100% 100%;
+    }
+    .t-title {
+        width: 100%;
+        height: 50%;
+        text-align: center;
+        font-size: 2em;
+        line-height: 80px;
+        color: #fff;
+    }
+    .data-page{
+        background: url("[[@{/img/background.png}]]") no-repeat;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        height: 1250px;
+        min-width: 1220px;
+        background-size:100% 100%;
+    }
+    .data-content {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .data-main {
+        width: calc(100% - 40px);
+        margin-bottom: 40px;
+        margin-left: 20px;
+        height: 720px;}
+
+    .main-left{
+        width: 25%;
+        float: left;
+    }
+    .main-center{
+        float: left;
+        width: 50%;
+        padding: 0 20px 0 20px;
+    }
+    .main-right{
+        float: left;
+        width: 25%;
+    }
+
+
+</style>
+
+<body>
+<div class="data-page" id="app">
+    <div class="header">
+        <div class="bg-header">
+            <div class="t-title">危险行为检测</div>
+        </div>
+    </div>
+
+    <div class="data-content">
+        <div class="data-main">
+            <div class="main-left">
+                <data-box :title="'实时检测结果'" :dheight="500" :icon="'account'" :boxb="false">
+                    <div>实时眼部纵横比（EAR）：{{detectResult.EAR}}</div>
+                    <div>当前疲劳占比：{{detectResult.closeRatio}}</div>
+                </data-box>
+            </div>
+
+            <div class="main-center">
+                <data-box :title="'实时监控画面'" :dheight="500" :icon="'account'" :boxb="false">
+                    <img id="targetImg" height="100%" width="100%"/>
+                    <video style="width: 100%; height: 100%; z-index: -10; position: absolute;left: 0; top: 0; object-fit: fill"  autoplay></video>
+                </data-box>
+            </div>
+
+            <div class="main-right">
+                <data-box :title="'控制面板'" :dheight="800">
+                    <el-button :type="switchButton.buttonType" @click="switchState">
+                        <span v-if="switchButton.state">结束训练</span>
+                        <span v-if="!switchButton.state">开始训练</span>
+                    </el-button>
+                </data-box>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+    var url = "ws://10.103.238.165:61614";
+    var destination = "/queue/riskBehaviourInput";
+    var login = "admin";
+    var passcode = "password";
+
+    var client = Stomp.client(url);
+
+    var stompOnMessage = function (message) {
+        console.log(message);
+        let jsonData = JSON.parse(message.body);
+        //解析图像
+        if(jsonData.image){
+            let img = document.getElementById("targetImg");
+            img.src = jsonData.image;
+        }
+        if(jsonData.ear){
+            app.detectResult.EAR = jsonData.ear;
+        }
+        if(jsonData.closeRatio){
+            app.detectResult.closeRatio = jsonData.closeRatio;
+        }
+    };
+
+    var stompOnError = function (error) {
+        alert(error);
+        console.log("Stomp连接出错！" + error);
+    };
+
+    // // the client is notified when it is connected to the server.
+    client.connect(login, passcode, function () {
+        client.subscribe("/riskBehaviourOutput", stompOnMessage);
+    }, stompOnError);
+
+    const app = new Vue({
+        el:'#app',
+        data:{
+            imageTransTimer:'',
+            switchButton:{ //开始（停止）训练按钮
+                state:false, //训练状态：开启/停止
+                buttonType:'success',
+            },
+            detectResult:{
+                closeRatio:'',
+                EAR:''
+            }
+        },
+        mounted: function(){
+            this.initCamera(); //初始化摄像头
+            // this.startTracking(); //开始手部跟踪
+        },
+        methods:{
+            initCamera:function(){
+                let _this = this;
+                let constraints = { video: true };
+                let video = document.querySelector('video');
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(function(mediaStream) {
+                        video.srcObject = mediaStream;
+                    })
+                    .catch(function(err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
+            },
+            transImage: function (video) {
+                let _this = this;
+                let canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                let image = canvas.toDataURL('image/jpeg');
+                if (image != null) {
+                    client.send(destination, {}, image); //发送消息
+                }
+            },
+            switchState:function () { //按钮调用，用于开启或终止训练（切换状态）
+                let _this = this;
+                _this.switchButton.state = !_this.switchButton.state;
+                if(_this.switchButton.state){
+                    _this.imageTransTimer = setInterval(function(){
+                        _this.transImage(document.querySelector('video'));
+                    }, 200); //100ms发送一次
+                }else{
+                    clearInterval(_this.imageTransTimer); //停止图像传输
+                }
+
+            },
+            // startTracking:function () {
+            //     let _this = this;
+            //     const modelParams = {
+            //         flipHorizontal: true,   // flip e.g for video
+            //         maxNumBoxes: 20,        // maximum number of boxes to detect
+            //         iouThreshold: 0.5,      // ioU threshold for non-max suppression
+            //         scoreThreshold: 0.6,    // confidence threshold for predictions.
+            //     };
+            //     // Load the model.
+            //     handTrack.load(modelParams).then(model => {
+            //         // detect objects in the image.
+            //         model.detect(myVideo).then(predictions => {
+            //             console.log("Predictions: ", predictions);
+            //             model.renderPredictions(predictions, targetCanvas, context, myVideo);
+            //             window.requestAnimationFrame(_this.startTracking);
+            //         });
+            //     });
+            // }
+
+            // recordVideo: function (stream) { //录制实时视频
+            //     let _this = this;
+            //     let options;
+            //     if (typeof MediaRecorder.isTypeSupported == 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
+            //         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+            //             options = {mimeType: 'video/webm;codecs=h264'};
+            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+            //             options = {mimeType: 'video/webm;codecs=h264'};
+            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+            //             options = {mimeType: 'video/webm;codecs=vp8'};
+            //         }
+            //         console.log('Using '+options.mimeType);
+            //         mediaRecorder = new MediaRecorder(stream, options);
+            //     }else{
+            //         log('isTypeSupported is not supported, using default codecs for browser');
+            //         mediaRecorder = new MediaRecorder(stream);
+            //     }
+            //
+            //     mediaRecorder.ondataavailable = function(event) { //当视频数据准备完成时回调
+            //         // this.chunks.push(event.data);
+            //         let reader = new FileReader();
+            //         reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
+            //             let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
+            //             console.log(buf);
+            //             if(reader.result.byteLength > 0){ //空数据不进行发送
+            //                 _this.socket.send(buf);
+            //             }
+            //         });
+            //         reader.readAsArrayBuffer(event.data);
+            //     };
+            //     mediaRecorder.onerror = function(e){
+            //         console.log('实时视频录制出错：' + e);
+            //     };
+            //     mediaRecorder.onstart = function(){
+            //         console.log('实时视频开始录制：' + mediaRecorder.state);
+            //     };
+            //     mediaRecorder.start(10); //每10ms记录成一个Blob
+            // }
+
+        },
+        components:{
+            dataBox:DataBox,
+            dataBoard: DataBoard, //用于健身指导的数据面板（左）
+            record:Record, //用于动画舞蹈的录制面板（左）
+            exeIntro:ExeIntro, //健身指导介绍（底部）
+            danceIntro: DanceIntro //动画舞蹈介绍（底部）
+        }
+    })
+</script>
+</body>
+</html>

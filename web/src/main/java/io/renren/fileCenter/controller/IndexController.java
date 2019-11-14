@@ -48,4 +48,9 @@ public class IndexController {
     public String mkgame(){
         return "mkgame";
     }
+
+    @RequestMapping("/riskBehaviour")
+    public String riskBehaviour(){
+        return "riskBehaviour";
+    }
 }

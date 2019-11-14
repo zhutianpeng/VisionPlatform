@@ -1,10 +1,7 @@
 package io.renren.imgProcess.config;
 
 
-import io.renren.imgProcess.service.redisService.MatchingMessageListener;
-import io.renren.imgProcess.service.redisService.Offline3DMessageListener;
-import io.renren.imgProcess.service.redisService.RealTime3DMessageListener;
-import io.renren.imgProcess.service.redisService.RealTime2DMessageListener;
+import io.renren.imgProcess.service.redisService.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
@@ -63,7 +60,8 @@ public class RedisConfiguration extends CachingConfigurerSupport {
              MessageListenerAdapter pose2DListenerAdapter,
              MessageListenerAdapter pose3DListenerAdapter,
              MessageListenerAdapter offline3DListenerAdapter,
-             MessageListenerAdapter matchingResultListenerAdapter) {
+             MessageListenerAdapter matchingResultListenerAdapter,
+             MessageListenerAdapter riskBehaviourResultListenerAdapter) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
@@ -72,6 +70,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         container.addMessageListener(pose3DListenerAdapter, new PatternTopic("3DOutputChannel")); //在线3D pose处理结果通道
         container.addMessageListener(offline3DListenerAdapter, new PatternTopic("resultChannel")); //离线视频3D pose处理完成通道
         container.addMessageListener(matchingResultListenerAdapter, new PatternTopic("MatchingOutputChannel")); //DTW匹配结果通道
+        container.addMessageListener(riskBehaviourResultListenerAdapter, new PatternTopic("RiskBehaviourOutput")); //DTW匹配结果通道
         return container;
     }
 
@@ -100,5 +99,10 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     @Bean
     MessageListenerAdapter matchingResultListenerAdapter(MatchingMessageListener matchingMessageListener){
         return new MessageListenerAdapter(matchingMessageListener, "onMessage");
+    }
+
+    @Bean
+    MessageListenerAdapter riskBehaviourResultListenerAdapter(RiskMessageListener riskMessageListener){
+        return new MessageListenerAdapter(riskMessageListener, "onMessage");
     }
 }
