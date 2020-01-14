@@ -1,12 +1,16 @@
 package io.renren.imgProcess.service.activemqService;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
+import net.sf.json.JSONObject;
+import org.springframework.jms.annotation.JmsListener;
+import redis.clients.jedis.Jedis;
+
+import javax.jms.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /*
-ztp:一对多   TopicMessageListener
+发布订阅模式的监听器
 */
 public class TopicMessageListener implements MessageListener {
 

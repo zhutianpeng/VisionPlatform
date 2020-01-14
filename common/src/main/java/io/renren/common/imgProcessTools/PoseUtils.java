@@ -116,7 +116,7 @@ public class PoseUtils {
 //                    PointEntity center = new PointEntity(x*width+0.5f, y*height+0.5f, confidence);
                     JSONObject centerObject = new JSONObject();
                     centerObject.put("x", x*width+0.5f);
-                    centerObject.put("y", y*width+0.5f);
+                    centerObject.put("y", y*height+0.5f);
                     centerObject.put("confidence", confidence);
 
                     centerMap.put(String.valueOf(j), centerObject);

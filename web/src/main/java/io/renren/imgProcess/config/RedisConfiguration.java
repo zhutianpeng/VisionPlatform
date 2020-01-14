@@ -61,6 +61,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
              MessageListenerAdapter pose3DListenerAdapter,
              MessageListenerAdapter offline3DListenerAdapter,
              MessageListenerAdapter matchingResultListenerAdapter,
+             MessageListenerAdapter velocityResultListenerAdapter,
              MessageListenerAdapter riskBehaviourResultListenerAdapter) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -69,8 +70,9 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         container.addMessageListener(pose2DListenerAdapter, new PatternTopic("2DOutputChannel")); //在线2D pose处理结果通道
         container.addMessageListener(pose3DListenerAdapter, new PatternTopic("3DOutputChannel")); //在线3D pose处理结果通道
         container.addMessageListener(offline3DListenerAdapter, new PatternTopic("resultChannel")); //离线视频3D pose处理完成通道
-        container.addMessageListener(matchingResultListenerAdapter, new PatternTopic("MatchingOutputChannel")); //DTW匹配结果通道
-        container.addMessageListener(riskBehaviourResultListenerAdapter, new PatternTopic("RiskBehaviourOutput")); //DTW匹配结果通道
+        container.addMessageListener(matchingResultListenerAdapter, new PatternTopic("MatchingOutputChannel")); //动作匹配结果通道
+        container.addMessageListener(velocityResultListenerAdapter, new PatternTopic("VelocityOutputChannel")); //速度检测结果通道
+        container.addMessageListener(riskBehaviourResultListenerAdapter, new PatternTopic("RiskBehaviourOutput")); //危险行为识别结果通道
         return container;
     }
 
@@ -99,6 +101,11 @@ public class RedisConfiguration extends CachingConfigurerSupport {
     @Bean
     MessageListenerAdapter matchingResultListenerAdapter(MatchingMessageListener matchingMessageListener){
         return new MessageListenerAdapter(matchingMessageListener, "onMessage");
+    }
+
+    @Bean
+    MessageListenerAdapter velocityResultListenerAdapter(VelocityMessageListener velocityMessageListener){
+        return new MessageListenerAdapter(velocityMessageListener, "onMessage");
     }
 
     @Bean

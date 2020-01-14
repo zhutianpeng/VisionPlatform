@@ -23,9 +23,9 @@ public class IndexController {
         return "free";
     }
 
-    @RequestMapping("/realTime2D")
-    public String realTime2D(){
-        return "exercise2D";
+    @RequestMapping("/realTimeExercise")
+    public String realTimeExercise(){
+        return "exercise";
     }
 
     @RequestMapping("/test")
@@ -49,8 +49,8 @@ public class IndexController {
         return "mkgame";
     }
 
-    @RequestMapping("/riskBehaviour")
-    public String riskBehaviour(){
+    @RequestMapping("/riskBehaviourDetection")
+    public String riskBehaviourDetection(){
         return "riskBehaviour";
     }
 }

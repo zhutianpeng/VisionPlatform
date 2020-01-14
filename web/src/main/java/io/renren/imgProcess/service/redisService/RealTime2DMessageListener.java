@@ -32,57 +32,26 @@ public class RealTime2DMessageListener implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        JSONObject json = JSONObject.fromObject(message.toString());
-        String imageID = json.getString("imageID");
-
         Jedis jedis = jedisPool.getResource();
-        String imageContent = jedis.hget(imageID, "image"); //  原图
-        String userToken = jedis.hget(imageID, "userToken");//  user
+        JSONObject jsonObject = JSONObject.fromObject(message.toString()); //TODO
 
-//        output
-        String imageResult = imageContent;
+        String userToken = jsonObject.getString("userToken");
+        String poseResult = jsonObject.getString("poseResult");
+        String image = jsonObject.getString("image"); //处理之后的图片
 
-//        pose
-        String poseResultString = jedis.hget(imageID, "poseResult");
-        if(StringUtils.isNotBlank(poseResultString)){
-            imageResult = PoseUtils.drawHumans(poseResultString, imageContent); //画图（姿态）
-        }
-//
-//        face
-        String faceResultString = jedis.hget(imageID, "faceResult");
-        if(StringUtils.isNotBlank(faceResultString)){
-            imageResult = FaceUtils.drawFaces(faceResultString, imageResult); //画图（人脸）
-        }
-//
-        String poseResultParsed=null;
-//        get pose result ArrayList
-        if(StringUtils.isNotBlank(poseResultString) && !poseResultString.equals("[]")){
-            poseResultParsed = PoseUtils.getPoseData(poseResultString, imageContent); //解析姿态数据
-        }
-
-//        存放结果的hashMap
+//        String imageResult = null;
+//        String poseResultParsed = null;
+//        if(StringUtils.isNotBlank(poseResult)&& !poseResult.equals("[]")){
+//            imageResult = PoseUtils.drawHumans(poseResult, rawImage); //画图（姿态）
+//            poseResultParsed = PoseUtils.getPoseData(poseResult, rawImage); //解析姿态数据
+//        }
         Map<String, String> result = new HashMap<String, String>();
-        String moveStage = jedis.hget(imageID, "moveStage"); //TODO
-        if(moveStage != null){
-            result.put("moveStage", moveStage);
-        }
-
-        result.put("image", imageResult); //带分析结果的图片
-
-        if(StringUtils.isNotBlank(poseResultParsed)){
-            result.put("poseResultParsed", poseResultParsed); //姿态数据
-        }
-
+        result.put("image", image); //带分析结果的图片
+        result.put("poseResult", poseResult); //姿态数据
         JSONObject output = JSONObject.fromObject(result);
 
-
-//       redis 释放资源
-        jedis.del(imageID);
-        jedis.close();
-
-//       activeMQ send for video and poseResultParsed
+        jedis.close();//       redis 释放资源
         ActiveMQQueue destination = new ActiveMQQueue("/user/"+ userToken +"/realTime2DOutput");
-
         producerService.sendMessage(destination, output.toString());  //发到ActiveMQ中
 //
     }

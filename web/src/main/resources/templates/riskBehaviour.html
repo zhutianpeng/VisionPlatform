@@ -2,7 +2,7 @@
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>姿态分析展示平台</title>
+    <title>行为检测平台</title>
     <link rel="shortcut icon" th:href="@{/webGL/TemplateData/favicon.ico}">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script><!-- 引入vue框架 -->
     <!--<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>-->
@@ -91,32 +91,61 @@
 <div class="data-page" id="app">
     <div class="header">
         <div class="bg-header">
-            <div class="t-title">危险行为检测</div>
+            <div class="t-title">驾驶员疲劳及危险行为实时检测</div>
         </div>
     </div>
 
     <div class="data-content">
         <div class="data-main">
             <div class="main-left">
-                <data-box :title="'实时检测结果'" :dheight="500" :icon="'account'" :boxb="false">
-                    <div>实时眼部纵横比（EAR）：{{detectResult.EAR}}</div>
-                    <div>当前疲劳占比：{{detectResult.closeRatio}}</div>
+                <data-box :title="''" :dheight="980">
+                    <data-box :title="'疲劳检测结果'" :dheight="490" :icon="'account'" :boxb="false">
+                        <data-box :title="''" :dheight="300" :icon="'account'" :boxb="false">
+                            <img id="targetImg" height="100%" width="100%"/>
+                        </data-box>
+                        <data-box :title="''" :dheight="190" :icon="'account'" :boxb="false">
+                            <div style="color: white; margin-left: 10px; margin-right: 10px;font-size: 20px">
+                                <div>实时眼部纵横比（EAR）：{{tiredDetectResult.EAR}}</div>
+                                <div>当前疲劳概率：{{tiredDetectResult.closeRatio}}</div>
+                                <el-alert :type="tiredDetectResult.alert.type" :closable="false" show-icon v-if="tiredDetectResult.alertVisible">
+                                    <span style="font-size: 35px; font-weight: bold">{{tiredDetectResult.alert.title}}</span>
+                                </el-alert>
+                            </div>
+                        </data-box>
+                    </data-box>
+
+                    <data-box :title="'危险行为检测结果'" :dheight="490" :icon="'account'" :boxb="false">
+<!--                        <data-box :title="''" :dheight="300" :icon="'account'" :boxb="false">-->
+<!--                            <img id="riskImg" height="100%" width="100%"/>-->
+<!--                        </data-box>-->
+                        <data-box :title="''" :dheight="190" :icon="'account'" :boxb="false">
+                            <div style="color: white; margin-left: 10px; margin-right: 10px;font-size: 20px">
+                                <div>当前驾驶员行为：{{behaviours[riskDetectResult.index]}}</div>
+                                <div>推测概率：{{riskDetectResult.prob}}</div>
+                                <el-alert :type="riskDetectResult.alert.type" :closable="false" show-icon v-if="riskDetectResult.alertVisible">
+                                    <span style="font-size: 35px; font-weight: bold">{{riskDetectResult.alert.title}}</span>
+                                </el-alert>
+                            </div>
+                        </data-box>
+                    </data-box>
                 </data-box>
             </div>
 
             <div class="main-center">
-                <data-box :title="'实时监控画面'" :dheight="500" :icon="'account'" :boxb="false">
-                    <img id="targetImg" height="100%" width="100%"/>
+                <data-box :title="'主监控画面'" :dheight="720" :icon="'account'" :boxb="false">
+<!--                    <img id="targetImg" height="100%" width="100%"/>-->
                     <video style="width: 100%; height: 100%; z-index: -10; position: absolute;left: 0; top: 0; object-fit: fill"  autoplay></video>
                 </data-box>
             </div>
 
             <div class="main-right">
-                <data-box :title="'控制面板'" :dheight="800">
-                    <el-button :type="switchButton.buttonType" @click="switchState">
-                        <span v-if="switchButton.state">结束训练</span>
-                        <span v-if="!switchButton.state">开始训练</span>
-                    </el-button>
+                <data-box :title="''" :dheight="980" :boxb="false">
+                    <data-box :title="'控制面板'" :dheight="800" :blob="false">
+                        <el-button :type="switchButton.buttonType" @click="switchState">
+                            <span v-if="switchButton.state">关闭检测</span>
+                            <span v-if="!switchButton.state">启动检测</span>
+                        </el-button>
+                    </data-box>
                 </data-box>
             </div>
         </div>
@@ -133,19 +162,26 @@
     var client = Stomp.client(url);
 
     var stompOnMessage = function (message) {
-        console.log(message);
+        // console.log(message);
+
         let jsonData = JSON.parse(message.body);
         //解析图像
-        if(jsonData.image){
-            let img = document.getElementById("targetImg");
-            img.src = jsonData.image;
+        if(jsonData.type === "risk"){ //危险行为部分
+            app.riskDetectResult.index = jsonData.index;
+            app.riskDetectResult.prob = jsonData.prob;
+        } else if(jsonData.type === "tired"){ //疲劳部分
+            if(jsonData.image){
+                let img = document.getElementById("targetImg");
+                img.src = jsonData.image;
+            }
+            if(jsonData.ear){
+                app.tiredDetectResult.EAR = jsonData.ear;
+            }
+            if(jsonData.closeRatio){
+                app.tiredDetectResult.closeRatio = jsonData.closeRatio;
+            }
         }
-        if(jsonData.ear){
-            app.detectResult.EAR = jsonData.ear;
-        }
-        if(jsonData.closeRatio){
-            app.detectResult.closeRatio = jsonData.closeRatio;
-        }
+
     };
 
     var stompOnError = function (error) {
@@ -158,6 +194,22 @@
         client.subscribe("/riskBehaviourOutput", stompOnMessage);
     }, stompOnError);
 
+    const alertMode = [{
+        title:'检测到驾驶员疲劳！请及时休息！',
+        type:'warning'
+    },{
+        title:'未检测到驾驶员疲劳',
+        type:'success'
+    }];
+
+    const riskAlertMode = [{
+        title:'疑似检测到危险行为！',
+        type:'error'
+    },{
+        title:'未检测到危险行为',
+        type:'success'
+    }];
+
     const app = new Vue({
         el:'#app',
         data:{
@@ -166,10 +218,35 @@
                 state:false, //训练状态：开启/停止
                 buttonType:'success',
             },
-            detectResult:{
-                closeRatio:'',
-                EAR:''
-            }
+            tiredDetectResult:{
+                closeRatio:0,
+                EAR:'',
+                alert:alertMode[1],
+                flashTimer:{
+                    active:false, //定时器默认不激活
+                    content:''
+                }, //控制告警闪烁
+                alertVisible:false //告警内容是否可见 TODO
+            },
+            riskDetectResult:{
+                flag:0,
+                alert:riskAlertMode[1],
+                alertVisible:false,
+                index:0,
+                prob:''
+            },
+            behaviours:[
+                '正常驾驶',
+                '右手发短信',
+                '右手打电话',
+                '左手发短信',
+                '左手打电话',
+                '操控收音机',
+                '喝水',
+                '向后转身/坐姿不规范',
+                '整理头发',
+                '和乘客聊天'],
+
         },
         mounted: function(){
             this.initCamera(); //初始化摄像头
@@ -204,69 +281,64 @@
                     _this.imageTransTimer = setInterval(function(){
                         _this.transImage(document.querySelector('video'));
                     }, 200); //100ms发送一次
+                    _this.tiredDetectResult.alertVisible = true; //开启提示牌
+                    _this.riskDetectResult.alertVisible = true; //开启提示牌
+                    _this.tiredDetectResult.alert = alertMode[1]; //默认是正常状态
+                    _this.riskDetectResult.alert = riskAlertMode[1]; //默认是正常状态
                 }else{
                     clearInterval(_this.imageTransTimer); //停止图像传输
+                    _this.tiredDetectResult.alertVisible = false; //关闭提示牌
+                    _this.riskDetectResult.alertVisible = false;
+
                 }
 
             },
-            // startTracking:function () {
-            //     let _this = this;
-            //     const modelParams = {
-            //         flipHorizontal: true,   // flip e.g for video
-            //         maxNumBoxes: 20,        // maximum number of boxes to detect
-            //         iouThreshold: 0.5,      // ioU threshold for non-max suppression
-            //         scoreThreshold: 0.6,    // confidence threshold for predictions.
-            //     };
-            //     // Load the model.
-            //     handTrack.load(modelParams).then(model => {
-            //         // detect objects in the image.
-            //         model.detect(myVideo).then(predictions => {
-            //             console.log("Predictions: ", predictions);
-            //             model.renderPredictions(predictions, targetCanvas, context, myVideo);
-            //             window.requestAnimationFrame(_this.startTracking);
-            //         });
-            //     });
-            // }
+        },
+        computed:{
+            getCloseRatio:function () {
+                return this.tiredDetectResult.closeRatio;
+            },
+            getTimerState:function () { //获取得到定时器状态
+                return this.tiredDetectResult.flashTimer.active;
+            },
+            getBehaviours:function () {
+                return this.riskDetectResult.index;
+            }
+        },
+        watch:{
+            getCloseRatio:function (newVal, oldVal) {
+                let _this = this;
+                // console.log("NewVal:" + newVal + " Changed from:" + oldVal)
+                if(newVal >= 0.4){
+                    _this.tiredDetectResult.alert = alertMode[0]; //疲劳状态
+                    _this.tiredDetectResult.flashTimer.active = true;
+                }else{
+                    if(oldVal >= 0.4){ //如果属于刚刚解除疲劳的状态
+                        _this.tiredDetectResult.flashTimer.active = false;
+                        _this.tiredDetectResult.alertVisible = true;
+                        _this.tiredDetectResult.alert = alertMode[1]; //疲劳状态
+                    }
+                }
+            },
+            getTimerState:function (newVal) {
+                let _this = this;
+                if(newVal){
+                    _this.tiredDetectResult.flashTimer.content = setInterval(function(){
+                        _this.tiredDetectResult.alertVisible = !_this.tiredDetectResult.alertVisible;
+                    }, 1000); //1s闪烁一次
+                }else{
+                    clearInterval(_this.tiredDetectResult.flashTimer.content); //停止闪烁
+                }
+            },
+            getBehaviours:function (newVal) {
+                let _this = this;
+                if(newVal === 0){
+                    _this.riskDetectResult.alert = riskAlertMode[1]; //正常状态
+                }else{
+                    _this.riskDetectResult.alert = riskAlertMode[0];
+                }
 
-            // recordVideo: function (stream) { //录制实时视频
-            //     let _this = this;
-            //     let options;
-            //     if (typeof MediaRecorder.isTypeSupported == 'function'){//这里涉及到视频的容器以及编解码参数，这个与浏览器有密切的关系
-            //         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-            //             options = {mimeType: 'video/webm;codecs=h264'};
-            //         } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-            //             options = {mimeType: 'video/webm;codecs=vp8'};
-            //         }
-            //         console.log('Using '+options.mimeType);
-            //         mediaRecorder = new MediaRecorder(stream, options);
-            //     }else{
-            //         log('isTypeSupported is not supported, using default codecs for browser');
-            //         mediaRecorder = new MediaRecorder(stream);
-            //     }
-            //
-            //     mediaRecorder.ondataavailable = function(event) { //当视频数据准备完成时回调
-            //         // this.chunks.push(event.data);
-            //         let reader = new FileReader();
-            //         reader.addEventListener("loadend", function() { //读取数据结束后的监听方法
-            //             let buf = new Uint8Array(reader.result); //reader.result是一个含有视频数据流的Blob对象，进行格式转换
-            //             console.log(buf);
-            //             if(reader.result.byteLength > 0){ //空数据不进行发送
-            //                 _this.socket.send(buf);
-            //             }
-            //         });
-            //         reader.readAsArrayBuffer(event.data);
-            //     };
-            //     mediaRecorder.onerror = function(e){
-            //         console.log('实时视频录制出错：' + e);
-            //     };
-            //     mediaRecorder.onstart = function(){
-            //         console.log('实时视频开始录制：' + mediaRecorder.state);
-            //     };
-            //     mediaRecorder.start(10); //每10ms记录成一个Blob
-            // }
-
+            }
         },
         components:{
             dataBox:DataBox,
